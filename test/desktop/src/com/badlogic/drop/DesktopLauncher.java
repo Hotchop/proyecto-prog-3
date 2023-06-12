@@ -8,10 +8,10 @@ import com.badlogic.drop.drop;
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-		config.setTitle("Drop");
-		config.setWindowedMode(800,480);
-		config.useVsync(true);
-		config.setForegroundFPS(60);
+		config.setTitle("Drop");	//Titulo de la ventana
+		config.setWindowedMode(800,480);	//Tamaño de la ventana
+		config.useVsync(true);	//Si usa Vsync
+		config.setForegroundFPS(60);	//FPS en los que funciona
 		new Lwjgl3Application(new drop(), config);
 	}
 }
