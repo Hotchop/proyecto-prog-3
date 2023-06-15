@@ -28,7 +28,6 @@ public class Roguelite extends ApplicationAdapter {
 	Animation runAnimation;
 	Animation idleAnimation;
 	float elapsedTime;
-	Rectangle playerHitbox;
 	Player player;
 	Weapon playerWeapon;
 	
@@ -44,12 +43,6 @@ public class Roguelite extends ApplicationAdapter {
 		gate = new Texture("Door Gate.png");
 		playerWeapon = new Weapon();
 		player = new Player("Jason",playerWeapon);
-
-		playerHitbox = new Rectangle();
-		playerHitbox.x = 384;
-		playerHitbox.y = 250;
-		playerHitbox.width = 24;
-		playerHitbox.height = 32;
 
 		///Divide Spritesheet en partes iguales en una matriz
 		TextureRegion[][] tempFrames = TextureRegion.split(img,32,32);
@@ -85,18 +78,19 @@ public class Roguelite extends ApplicationAdapter {
 		batch.draw(walls,128,160);
 		batch.draw(door,370,640);
 		batch.draw(gate,384,640);
-		batch.draw((TextureRegion) idleAnimation.getKeyFrame(elapsedTime,true),playerHitbox.x,playerHitbox.y);
+		batch.draw((TextureRegion) idleAnimation.getKeyFrame(elapsedTime,true),player.getHitBox().x,player.getHitBox().y);
 		batch.end();
 
-		if(Gdx.input.isKeyPressed(Input.Keys.W)) playerHitbox.y += player.getSpeed() * Gdx.graphics.getDeltaTime();
-		if(Gdx.input.isKeyPressed(Input.Keys.A)) playerHitbox.x -= player.getSpeed() * Gdx.graphics.getDeltaTime();
-		if(Gdx.input.isKeyPressed(Input.Keys.S)) playerHitbox.y -= player.getSpeed() * Gdx.graphics.getDeltaTime();
-		if(Gdx.input.isKeyPressed(Input.Keys.D)) playerHitbox.x += player.getSpeed() * Gdx.graphics.getDeltaTime();
+		if(Gdx.input.isKeyPressed(Input.Keys.W)) player.getHitBox().y += player.getSpeed() * Gdx.graphics.getDeltaTime();
+		if(Gdx.input.isKeyPressed(Input.Keys.A)) player.getHitBox().x -= player.getSpeed() * Gdx.graphics.getDeltaTime();
+		if(Gdx.input.isKeyPressed(Input.Keys.S)) player.getHitBox().y -= player.getSpeed() * Gdx.graphics.getDeltaTime();
+		if(Gdx.input.isKeyPressed(Input.Keys.D)) player.getHitBox().x += player.getSpeed() * Gdx.graphics.getDeltaTime();
 
-		if(playerHitbox.x < 160) playerHitbox.x = 160;
-		if(playerHitbox.x > 608) playerHitbox.x = 608;
-		if(playerHitbox.y < 240) playerHitbox.y = 240;
-		if(playerHitbox.y > 640) playerHitbox.y = 640;
+		//Area de juego: x - 160 a 608, y - 240 a 640
+		if(player.getHitBox().x < 160) player.getHitBox().x = 160;
+		if(player.getHitBox().x > 608) player.getHitBox().x = 608;
+		if(player.getHitBox().y < 240) player.getHitBox().y = 240;
+		if(player.getHitBox().y > 640) player.getHitBox().y = 640;
 
 	}
 	

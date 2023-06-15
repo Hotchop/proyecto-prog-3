@@ -1,5 +1,7 @@
 package com.rogue.game.objects;
 
+import com.badlogic.gdx.math.Rectangle;
+
 public class Player {
     private String name;
     private float health;
@@ -11,6 +13,7 @@ public class Player {
     private int level;
     private int score;
     private Weapon weapon;
+    private Rectangle hitBox;
     private final float MAX_SPEED = 300f;
     private final float MAX_ARMOR = 0.2f;
     private final float MAX_DODGE = 0.1f;
@@ -27,6 +30,7 @@ public class Player {
         this.level = 1;
         this.score = 0;
         this.weapon = weapon;
+        this.hitBox = new Rectangle(384,250,32,32);
     }
 
     public String getName() {
@@ -99,5 +103,13 @@ public class Player {
 
     public void setScore(int score) {
         this.score = score;
+    }
+
+    public Rectangle getHitBox() {
+        return hitBox;
+    }
+
+    public void setHitBox(Rectangle hitBox) {
+        this.hitBox = hitBox;
     }
 }
