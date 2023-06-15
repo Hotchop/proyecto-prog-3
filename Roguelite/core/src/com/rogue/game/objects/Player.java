@@ -14,6 +14,8 @@ public class Player {
     private int score;
     private Weapon weapon;
     private Rectangle hitBox;
+    private int direction;
+    private int posModifier;
     private final float MAX_SPEED = 300f;
     private final float MAX_ARMOR = 0.2f;
     private final float MAX_DODGE = 0.1f;
@@ -31,6 +33,8 @@ public class Player {
         this.score = 0;
         this.weapon = weapon;
         this.hitBox = new Rectangle(384,250,32,32);
+        this.direction = 1;
+        this.posModifier = 0;
     }
 
     public String getName() {
@@ -111,5 +115,21 @@ public class Player {
 
     public void setHitBox(Rectangle hitBox) {
         this.hitBox = hitBox;
+    }
+
+    public int getDirection() {
+        return direction;
+    }
+
+    public void setDirection(int direction) {
+        this.direction = direction;
+    }
+
+    public int getPosModifier() {
+        return posModifier;
+    }
+
+    public void setPosModifier(int posModifier) {
+        this.posModifier = posModifier;
     }
 }

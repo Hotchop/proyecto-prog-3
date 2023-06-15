@@ -13,6 +13,9 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.rogue.game.objects.Player;
 import com.rogue.game.objects.Weapon;
+import sun.tools.jstat.Identifier;
+
+import java.security.Key;
 
 public class Roguelite extends ApplicationAdapter {
 	OrthographicCamera camera;
@@ -48,14 +51,14 @@ public class Roguelite extends ApplicationAdapter {
 		TextureRegion[][] tempFrames = TextureRegion.split(img,32,32);
 
 		//Crea un animation con un array de texturas de 4 imagenes
-		animationFrames = new TextureRegion[4];
+		animationFrames = new TextureRegion[8];
 
 		//Guarda la animacion de correr
 		int index = 0;
-		for(int j = 0; j < 4; j++){
-				animationFrames[index++] = tempFrames[2][j];
+		for(int j = 0; j < 8; j++){
+				animationFrames[index++] = tempFrames[3][j];
 		}
-		runAnimation = new Animation(1f/8f,animationFrames);
+		runAnimation = new Animation(1f/16f,animationFrames);
 
 		//Idle Animation
 		animationFrames = new TextureRegion[2];
@@ -78,13 +81,21 @@ public class Roguelite extends ApplicationAdapter {
 		batch.draw(walls,128,160);
 		batch.draw(door,370,640);
 		batch.draw(gate,384,640);
-		batch.draw((TextureRegion) idleAnimation.getKeyFrame(elapsedTime,true),player.getHitBox().x,player.getHitBox().y);
+		batch.draw((TextureRegion) runAnimation.getKeyFrame(elapsedTime,true),player.getHitBox().x + player.getPosModifier(),player.getHitBox().y,32*player.getDirection(),32);
 		batch.end();
 
 		if(Gdx.input.isKeyPressed(Input.Keys.W)) player.getHitBox().y += player.getSpeed() * Gdx.graphics.getDeltaTime();
-		if(Gdx.input.isKeyPressed(Input.Keys.A)) player.getHitBox().x -= player.getSpeed() * Gdx.graphics.getDeltaTime();
+		if(Gdx.input.isKeyPressed(Input.Keys.A)){
+			player.getHitBox().x -= player.getSpeed() * Gdx.graphics.getDeltaTime();
+			player.setDirection(-1);
+			player.setPosModifier(32);
+		}
 		if(Gdx.input.isKeyPressed(Input.Keys.S)) player.getHitBox().y -= player.getSpeed() * Gdx.graphics.getDeltaTime();
-		if(Gdx.input.isKeyPressed(Input.Keys.D)) player.getHitBox().x += player.getSpeed() * Gdx.graphics.getDeltaTime();
+		if(Gdx.input.isKeyPressed(Input.Keys.D)){
+			player.getHitBox().x += player.getSpeed() * Gdx.graphics.getDeltaTime();
+			player.setDirection(1);
+			player.setPosModifier(0);
+		}
 
 		//Area de juego: x - 160 a 608, y - 240 a 640
 		if(player.getHitBox().x < 160) player.getHitBox().x = 160;
