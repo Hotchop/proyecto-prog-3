@@ -11,6 +11,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.rogue.game.objects.Player;
+import com.rogue.game.objects.Weapon;
 
 public class Roguelite extends ApplicationAdapter {
 	OrthographicCamera camera;
@@ -18,8 +20,11 @@ public class Roguelite extends ApplicationAdapter {
 	Texture img;
 	TextureRegion[] animationFrames;
 	Animation runAnimation;
+	Animation idleAnimation;
 	float elapsedTime;
-	Rectangle player;
+	Rectangle playerHitbox;
+	Player player;
+	Weapon playerWeapon;
 	
 	@Override
 	public void create () {
@@ -27,12 +32,14 @@ public class Roguelite extends ApplicationAdapter {
 		camera.setToOrtho(false,800,800);
 		batch = new SpriteBatch();
 		img = new Texture("AnimationSheet_Character.png");
+		playerWeapon = new Weapon();
+		player = new Player("Jason",playerWeapon);
 
-		player = new Rectangle();
-		player.x = 400;
-		player.y = 400;
-		player.width = 64;
-		player.height = 64;
+		playerHitbox = new Rectangle();
+		playerHitbox.x = 400;
+		playerHitbox.y = 400;
+		playerHitbox.width = 32;
+		playerHitbox.height = 32;
 
 		///Divide Spritesheet en partes iguales en una matriz
 		TextureRegion[][] tempFrames = TextureRegion.split(img,32,32);
@@ -47,23 +54,30 @@ public class Roguelite extends ApplicationAdapter {
 		}
 		runAnimation = new Animation(1f/8f,animationFrames);
 
+		//Idle Animation
+		animationFrames = new TextureRegion[2];
+		index = 0;
+		for(int j = 0; j < 2; j++){
+			animationFrames[index++] = tempFrames[0][j];
+		}
+		idleAnimation = new Animation<>(1f/8f,animationFrames);
+
 	}
 
 	@Override
 	public void render () {
 		elapsedTime += Gdx.graphics.getDeltaTime();	//Tiempo de juego
-		ScreenUtils.clear(0, 0, 0, 1);
+		ScreenUtils.clear(0, 0, 1, 1);
 		camera.update();
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
-		batch.draw((TextureRegion) runAnimation.getKeyFrame(elapsedTime,true),player.x,player.y);
+		batch.draw((TextureRegion) idleAnimation.getKeyFrame(elapsedTime,true),playerHitbox.x,playerHitbox.y);
 		batch.end();
 
-		if(Gdx.input.isKeyPressed(Input.Keys.W)) player.y += 200 * Gdx.graphics.getDeltaTime();
-		if(Gdx.input.isKeyPressed(Input.Keys.A)) player.x -= 200 * Gdx.graphics.getDeltaTime();
-		if(Gdx.input.isKeyPressed(Input.Keys.S)) player.y -= 200 * Gdx.graphics.getDeltaTime();
-		if(Gdx.input.isKeyPressed(Input.Keys.D)) player.x += 200 * Gdx.graphics.getDeltaTime();
-
+		if(Gdx.input.isKeyPressed(Input.Keys.W)) playerHitbox.y += player.getSpeed() * Gdx.graphics.getDeltaTime();
+		if(Gdx.input.isKeyPressed(Input.Keys.A)) playerHitbox.x -= player.getSpeed() * Gdx.graphics.getDeltaTime();
+		if(Gdx.input.isKeyPressed(Input.Keys.S)) playerHitbox.y -= player.getSpeed() * Gdx.graphics.getDeltaTime();
+		if(Gdx.input.isKeyPressed(Input.Keys.D)) playerHitbox.x += player.getSpeed() * Gdx.graphics.getDeltaTime();
 	}
 	
 	@Override
