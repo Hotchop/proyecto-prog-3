@@ -18,6 +18,12 @@ public class Roguelite extends ApplicationAdapter {
 	OrthographicCamera camera;
 	SpriteBatch batch;
 	Texture img;
+	Texture walls;
+	Texture floor;
+	Texture door;
+	Texture gate;
+	Texture fireball;
+	Texture enemyBullet;
 	TextureRegion[] animationFrames;
 	Animation runAnimation;
 	Animation idleAnimation;
@@ -32,13 +38,17 @@ public class Roguelite extends ApplicationAdapter {
 		camera.setToOrtho(false,800,800);
 		batch = new SpriteBatch();
 		img = new Texture("AnimationSheet_Character.png");
+		walls = new Texture("Walls.png");
+		floor = new Texture("Floor.png");
+		door = new Texture("Door Frame.png");
+		gate = new Texture("Door Gate.png");
 		playerWeapon = new Weapon();
 		player = new Player("Jason",playerWeapon);
 
 		playerHitbox = new Rectangle();
-		playerHitbox.x = 400;
-		playerHitbox.y = 400;
-		playerHitbox.width = 32;
+		playerHitbox.x = 384;
+		playerHitbox.y = 250;
+		playerHitbox.width = 24;
 		playerHitbox.height = 32;
 
 		///Divide Spritesheet en partes iguales en una matriz
@@ -67,10 +77,14 @@ public class Roguelite extends ApplicationAdapter {
 	@Override
 	public void render () {
 		elapsedTime += Gdx.graphics.getDeltaTime();	//Tiempo de juego
-		ScreenUtils.clear(0, 0, 1, 1);
+		ScreenUtils.clear(0, 0, 0, 1);
 		camera.update();
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
+		batch.draw(floor,160,160);
+		batch.draw(walls,128,160);
+		batch.draw(door,370,640);
+		batch.draw(gate,384,640);
 		batch.draw((TextureRegion) idleAnimation.getKeyFrame(elapsedTime,true),playerHitbox.x,playerHitbox.y);
 		batch.end();
 
@@ -78,6 +92,12 @@ public class Roguelite extends ApplicationAdapter {
 		if(Gdx.input.isKeyPressed(Input.Keys.A)) playerHitbox.x -= player.getSpeed() * Gdx.graphics.getDeltaTime();
 		if(Gdx.input.isKeyPressed(Input.Keys.S)) playerHitbox.y -= player.getSpeed() * Gdx.graphics.getDeltaTime();
 		if(Gdx.input.isKeyPressed(Input.Keys.D)) playerHitbox.x += player.getSpeed() * Gdx.graphics.getDeltaTime();
+
+		if(playerHitbox.x < 160) playerHitbox.x = 160;
+		if(playerHitbox.x > 608) playerHitbox.x = 608;
+		if(playerHitbox.y < 240) playerHitbox.y = 240;
+		if(playerHitbox.y > 640) playerHitbox.y = 640;
+
 	}
 	
 	@Override
