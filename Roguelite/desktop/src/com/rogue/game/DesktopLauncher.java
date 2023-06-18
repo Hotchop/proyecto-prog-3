@@ -12,6 +12,6 @@ public class DesktopLauncher {
 		config.setTitle("UTN Roguelite");
 		config.setWindowedMode(800,800);
 		config.useVsync(true);
-		new Lwjgl3Application(new Roguelite(), config);
+		new Lwjgl3Application(new RogueliteGame(), config);
 	}
 }
