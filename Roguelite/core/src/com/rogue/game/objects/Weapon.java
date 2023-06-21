@@ -6,6 +6,7 @@ public class Weapon {
     private float critDamage;
     private float pSpeed;
     private float pSize;
+
     private final float MAX_CRITCHANCE = 0.5f;
     private final float MAX_CRITDAMAGE = 3f;
     private final float MAX_PSPEED = 500f;
