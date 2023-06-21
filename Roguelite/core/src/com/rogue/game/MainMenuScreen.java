@@ -30,6 +30,7 @@ public class MainMenuScreen implements Screen {
         backgroundTexture = new Texture("FondoMenu2.jpg");
         camera = new OrthographicCamera();
         fontMenu = new BitmapFont(Gdx.files.internal("FontTitulo.fnt"), Gdx.files.internal("FontTitulo.png"), false);
+        game.font.getData().setScale(1);
         camera.setToOrtho(false,800,800);
         menuOst = Gdx.audio.newMusic(Gdx.files.internal("MainMenuOST.mp3"));
         menuOst.setVolume(0.3f);

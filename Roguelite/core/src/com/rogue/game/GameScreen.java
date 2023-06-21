@@ -70,6 +70,8 @@ public class GameScreen implements Screen {
         floorNumber++;
         exit = new Rectangle(384,640,32,32);
 
+        game.font.getData().setScale(0.5f);
+
         battleOST = Gdx.audio.newMusic(Gdx.files.internal("Battle1.mp3"));
         soundProyectil = Gdx.audio.newSound(Gdx.files.internal("ProyectilSoundP.wav"));
         battleOST.setVolume(0.1f);
