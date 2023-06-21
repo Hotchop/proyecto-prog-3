@@ -99,7 +99,6 @@ public class GameScreen implements Screen {
         game.batch.draw(walls,128,160);
         game.batch.draw(door,370,640);
         if(!levelComplete) game.batch.draw(gate,384,640);
-        game.batch.draw((TextureRegion) runAnimation.getKeyFrame(elapsedTime,true),player.getHitBox().x + player.getPosModifier(),player.getHitBox().y,32*player.getDirection(),32);
         recorridoProyectil(elapsedTime);
         for (Proyectil proyectil : proyectiles) {
             game.batch.draw(proyectilTexture, proyectil.getPosicion().x, proyectil.getPosicion().y);
@@ -184,6 +183,7 @@ public class GameScreen implements Screen {
 
         //Exit Level
         if(player.getHitBox().overlaps(exit) && Gdx.input.isKeyJustPressed(Input.Keys.E) && levelComplete){
+            battleOST.stop();
             player.getHitBox().x = 384;
             player.getHitBox().y = 250;
             game.setScreen(new LoadingScreen(game,player));
@@ -362,12 +362,9 @@ public class GameScreen implements Screen {
     }
     @Override
     public void dispose() {
-        playerSpriteSheet.dispose();
         walls.dispose();
         floor.dispose();
         door.dispose();
         gate.dispose();
-        fireball.dispose();
-        enemyBullet.dispose();
     }
 }
