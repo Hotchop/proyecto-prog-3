@@ -1,8 +1,9 @@
 package com.rogue.game;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -14,6 +15,12 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.rogue.game.enums.PlayerAnimationStatus;
 import com.rogue.game.objects.Player;
 import com.rogue.game.objects.items.*;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.TimeUtils;
+import com.rogue.game.objects.Proyectil;
+import java.util.ArrayList;
+import java.util.List;
 
 
 import java.text.DecimalFormat;
@@ -21,10 +28,9 @@ import java.util.Random;
 
 import static com.badlogic.gdx.math.MathUtils.random;
 
-
 public class GameScreen implements Screen {
     private final RogueliteGame game;
-
+    private Music battleOST;
     private OrthographicCamera camera;
     Texture walls;
     Texture floor;
@@ -40,6 +46,11 @@ public class GameScreen implements Screen {
     Rectangle exit;
     boolean itemsAreSpawned;
     boolean levelComplete;
+    private Texture proyectilTexture;
+    private List<Proyectil> proyectiles;
+    private float attackSpeed = 0.5f;
+    private float lastShotTime = 0.0f;
+    private Sound soundProyectil;
 
     public GameScreen(final RogueliteGame game, Player player){
         this.game = game;
@@ -59,6 +70,14 @@ public class GameScreen implements Screen {
         floorNumber++;
         exit = new Rectangle(384,640,32,32);
 
+        battleOST = Gdx.audio.newMusic(Gdx.files.internal("Battle1.mp3"));
+        soundProyectil = Gdx.audio.newSound(Gdx.files.internal("ProyectilSoundP.wav"));
+        battleOST.setVolume(0.1f);
+        battleOST.setLooping(true);
+        battleOST.play();
+        proyectilTexture = new Texture("Fireball.png");
+        proyectiles = new ArrayList<>();
+
         itemsAreSpawned = false;
         levelComplete = false;
 
@@ -72,15 +91,19 @@ public class GameScreen implements Screen {
     public void render(float delta) {
         elapsedTime += Gdx.graphics.getDeltaTime();	//Tiempo de juego
         ScreenUtils.clear(0.145f, 0.075f, 0.102f, 1);
-
+		
         camera.update();
-        game.batch.setProjectionMatrix(camera.combined);
-
+		
         game.batch.begin();
         game.batch.draw(floor,160,160);
         game.batch.draw(walls,128,160);
         game.batch.draw(door,370,640);
         if(!levelComplete) game.batch.draw(gate,384,640);
+        game.batch.draw((TextureRegion) runAnimation.getKeyFrame(elapsedTime,true),player.getHitBox().x + player.getPosModifier(),player.getHitBox().y,32*player.getDirection(),32);
+        recorridoProyectil(elapsedTime);
+        for (Proyectil proyectil : proyectiles) {
+            game.batch.draw(proyectilTexture, proyectil.getPosicion().x, proyectil.getPosicion().y);
+        }
         game.batch.end();
 
         showPlayerStats();
@@ -132,8 +155,22 @@ public class GameScreen implements Screen {
             player.setPosModifier(0);
         }
 
-
         //Logica de hitbox del personaje
+
+        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+            dispararProyectil(0, 1);
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+            dispararProyectil(0, -1);
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+            dispararProyectil(-1, 0);
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+            dispararProyectil(1, 0);
+        }
+
+
         //Area de juego: x - 160 a 608, y - 240 a 640
         if(player.getHitBox().x < 160) player.getHitBox().x = 160;
         if(player.getHitBox().x > 608) player.getHitBox().x = 608;
@@ -180,6 +217,7 @@ public class GameScreen implements Screen {
     public void hide() {
 
     }
+
 
     public void spawnItems() throws InstantiationException, IllegalAccessException {
         Random random = new Random();   //Spawnea 3 copias de items random y los posiciona en el mapa
@@ -297,11 +335,39 @@ public class GameScreen implements Screen {
         levelComplete = true;
     }
 
+	private void dispararProyectil(int direccionX, int direccionY) {
+        if (direccionX != 0 || direccionY != 0) {
+            float currentTime = TimeUtils.nanoTime() / 1000000000.0f; // Obtiene el tiempo actual en segundos
+            float elapsedTime = currentTime - lastShotTime; // Calcula el tiempo transcurrido desde el último disparo
+            if (elapsedTime >= attackSpeed) {
+                lastShotTime = currentTime; // Actualiza el momento del último disparo
+
+                float posX = player.getHitBox().x;
+                float posY = player.getHitBox().y;
+                Vector2 direccionDisparo = new Vector2(direccionX, direccionY).nor();
+                Proyectil proyectil = new Proyectil(new Vector2(posX, posY), direccionDisparo, 15.0f);
+                soundProyectil.play();
+                proyectiles.add(proyectil);
+            }
+        }
+    }
+    private void recorridoProyectil(float deltaTime) {
+        for (int i = proyectiles.size() - 1; i >= 0; i--) {
+            Proyectil proyectil = proyectiles.get(i);
+            proyectil.update();
+            if (proyectil.getPosicion().x > Gdx.graphics.getWidth() || proyectil.getPosicion().y > Gdx.graphics.getHeight()) {
+                proyectiles.remove(i);
+            }
+        }
+    }
     @Override
     public void dispose() {
-         walls.dispose();
-         floor.dispose();
-         door.dispose();
-         gate.dispose();
+        playerSpriteSheet.dispose();
+        walls.dispose();
+        floor.dispose();
+        door.dispose();
+        gate.dispose();
+        fireball.dispose();
+        enemyBullet.dispose();
     }
 }

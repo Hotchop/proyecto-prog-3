@@ -33,11 +33,16 @@ public class Roguelite extends ApplicationAdapter {
 	float elapsedTime;
 	Player player;
 	Weapon playerWeapon;
-	
+	int screenWidth;
+	int screenHeight;
+
 	@Override
-	public void create () {
+	public void create() {
+		screenWidth = Gdx.graphics.getWidth();
+		screenHeight = Gdx.graphics.getHeight();
+
 		camera = new OrthographicCamera();
-		camera.setToOrtho(false,800,800);
+		camera.setToOrtho(false, screenWidth, screenHeight);
 		batch = new SpriteBatch();
 		img = new Texture("AnimationSheet_Character.png");
 		walls = new Texture("Walls.png");
@@ -45,28 +50,28 @@ public class Roguelite extends ApplicationAdapter {
 		door = new Texture("Door Frame.png");
 		gate = new Texture("Door Gate.png");
 		playerWeapon = new Weapon();
-		player = new Player("Jason",playerWeapon);
+		player = new Player("Jason", playerWeapon);
 
-		///Divide Spritesheet en partes iguales en una matriz
-		TextureRegion[][] tempFrames = TextureRegion.split(img,32,32);
+		// Divide Spritesheet en partes iguales en una matriz
+		TextureRegion[][] tempFrames = TextureRegion.split(img, 32, 32);
 
-		//Crea un animation con un array de texturas de 4 imagenes
+		// Crea una animación con un array de texturas de 4 imágenes
 		animationFrames = new TextureRegion[8];
 
-		//Guarda la animacion de correr
+		// Guarda la animación de correr
 		int index = 0;
-		for(int j = 0; j < 8; j++){
-				animationFrames[index++] = tempFrames[3][j];
+		for (int j = 0; j < 8; j++) {
+			animationFrames[index++] = tempFrames[3][j];
 		}
-		runAnimation = new Animation(1f/16f,animationFrames);
+		runAnimation = new Animation(1f / 16f, animationFrames);
 
-		//Idle Animation
+		// Idle Animation
 		animationFrames = new TextureRegion[2];
 		index = 0;
-		for(int j = 0; j < 2; j++){
+		for (int j = 0; j < 2; j++) {
 			animationFrames[index++] = tempFrames[0][j];
 		}
-		idleAnimation = new Animation<>(1f/8f,animationFrames);
+		idleAnimation = new Animation<>(1f / 8f, animationFrames);
 	}
 
 	@Override
@@ -83,6 +88,7 @@ public class Roguelite extends ApplicationAdapter {
 		batch.draw((TextureRegion) runAnimation.getKeyFrame(elapsedTime,true),player.getHitBox().x + player.getPosModifier(),player.getHitBox().y,32*player.getDirection(),32);
 		batch.end();
 
+		///Movimiento del jugador
 		if(Gdx.input.isKeyPressed(Input.Keys.W)) player.getHitBox().y += player.getSpeed() * Gdx.graphics.getDeltaTime();
 		if(Gdx.input.isKeyPressed(Input.Keys.A)){
 			player.getHitBox().x -= player.getSpeed() * Gdx.graphics.getDeltaTime();

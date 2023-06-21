@@ -1,6 +1,8 @@
 package com.rogue.game;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.rogue.game.objects.items.*;
@@ -39,6 +41,9 @@ public class RogueliteGame extends Game {
         itemArrayList.add(item7);
         itemArrayList.add(item8);
         itemArrayList.add(item9);
+
+        font = new BitmapFont(Gdx.files.internal("Minecraft.fnt"), Gdx.files.internal("Minecraft.png"), false);
+        font.setColor(Color.WHITE);
 
         this.setScreen(new MainMenuScreen(this));
     }
