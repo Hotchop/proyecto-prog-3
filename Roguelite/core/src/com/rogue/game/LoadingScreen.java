@@ -2,27 +2,22 @@ package com.rogue.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.rogue.game.objects.Player;
 
-public class EndScreen implements Screen {
+public class LoadingScreen implements Screen {
     private final RogueliteGame game;
     private final Player player;
-
-    boolean gameSaved;
     private OrthographicCamera camera;
 
-    public EndScreen(RogueliteGame game, Player player) {
+    public LoadingScreen(RogueliteGame game, Player player) {
         this.game = game;
         this.player = player;
-        this.gameSaved = false;
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 800);
     }
+
 
     @Override
     public void show() {
@@ -36,27 +31,16 @@ public class EndScreen implements Screen {
         camera.update();
         game.batch.setProjectionMatrix(camera.combined);
 
-
         game.batch.begin();
-        game.font.draw(game.batch, "YOU DIE", 400, 400,0, Align.center,false);
-        game.font.draw(game.batch, "Su puntuacion llego a:" + player.getScore(), 400, 300,0, Align.center,false);
-        game.font.draw(game.batch, "Llego hasta nivel " + player.getLevel(), 400, 200,0, Align.center,false);
-        game.font.draw(game.batch, "Tap anywhere to restart", 400, 50,0,Align.center,false);
+        game.font.draw(game.batch, "Su puntuacion es de: " + player.getScore(), 100, 100);
+        game.font.draw(game.batch, "\nEntrando al piso " + (GameScreen.floorNumber + 1), 100, 80);
+        game.font.draw(game.batch, "\nTap anywhere to continue", 100, 50);
         game.batch.end();
 
-        if(!gameSaved){
-            Games save = new Games(player.getName(), player.getLevel(), player.getScore(), GameScreen.floorNumber);
-            Json json = new Json();
-            json.toJson(save, FileHandle.tempFile("Roguelite/assets/Archivos"));
-            gameSaved = false;
-        }
-
         if (Gdx.input.isTouched()) {  ///Cambio de escena al juego
-            game.setScreen(new MainMenuScreen(game));
+            game.setScreen(new GameScreen(game, player));
             dispose();
         }
-
-
     }
 
     @Override
@@ -83,5 +67,4 @@ public class EndScreen implements Screen {
     public void dispose() {
 
     }
-
 }

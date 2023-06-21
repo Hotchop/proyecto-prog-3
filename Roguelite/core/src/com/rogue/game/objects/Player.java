@@ -1,6 +1,7 @@
 package com.rogue.game.objects;
 
 import com.badlogic.gdx.math.Rectangle;
+import com.rogue.game.enums.PlayerAnimationStatus;
 
 public class Player {
     private String name;
@@ -16,6 +17,7 @@ public class Player {
     private Rectangle hitBox;
     private int direction;
     private int posModifier;
+    private PlayerAnimationStatus animationStatus;
     private final float MAX_SPEED = 300f;
     private final float MAX_ARMOR = 0.2f;
     private final float MAX_DODGE = 0.1f;
@@ -35,6 +37,7 @@ public class Player {
         this.hitBox = new Rectangle(384,250,32,32);
         this.direction = 1;
         this.posModifier = 0;
+        this.animationStatus = PlayerAnimationStatus.IDLE;
     }
 
     public String getName() {
@@ -131,5 +134,37 @@ public class Player {
 
     public void setPosModifier(int posModifier) {
         this.posModifier = posModifier;
+    }
+
+    public PlayerAnimationStatus getAnimationStatus() {
+        return animationStatus;
+    }
+
+    public void setAnimationStatus(PlayerAnimationStatus animationStatus) {
+        this.animationStatus = animationStatus;
+    }
+
+    public Weapon getWeapon() {
+        return weapon;
+    }
+
+    public void setWeapon(Weapon weapon) {
+        this.weapon = weapon;
+    }
+
+    public float getMAX_SPEED() {
+        return MAX_SPEED;
+    }
+
+    public float getMAX_ARMOR() {
+        return MAX_ARMOR;
+    }
+
+    public float getMAX_DODGE() {
+        return MAX_DODGE;
+    }
+
+    public int getLEVEL_XP() {
+        return LEVEL_XP;
     }
 }
