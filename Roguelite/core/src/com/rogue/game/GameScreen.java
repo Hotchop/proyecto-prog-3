@@ -4,32 +4,22 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.rogue.game.enums.PlayerAnimationStatus;
 import com.rogue.game.objects.Player;
-import com.rogue.game.objects.enemies.*;
 import com.rogue.game.objects.items.*;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.rogue.game.objects.Proyectil;
-import com.rogue.game.objects.mapstuff.Objecto;
-import com.rogue.game.objects.mapstuff.Objetos;
-import com.rogue.game.objects.mapstuff.traps.Trampas;
-import com.rogue.game.objects.mapstuff.traps.Trap;
-
-
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 
@@ -46,11 +36,13 @@ public class GameScreen implements Screen {
     Texture floor;
     Texture door;
     Texture gate;
+    Texture fireball;
+    Texture enemyBullet;
     float elapsedTime;
     Player player;
     Item item1,item2,item3;
     private final DecimalFormat decimalFormat;
-    public static int floorNumber;
+    static int floorNumber = 0;
     Rectangle exit;
     boolean itemsAreSpawned;
     boolean levelComplete;
@@ -58,24 +50,11 @@ public class GameScreen implements Screen {
     private List<Proyectil> proyectiles;
     private float attackSpeed = 0.5f;
     private float lastShotTime = 0.0f;
-    private  float lastAttackTime=0.0f;
     private Sound soundProyectil;
-    Objetos objetos;
-    Trampas traps;
-    Rectangle objCol;
-    Rectangle objCol2;
-    Rectangle enemiesCol;
-    ArrayList<Objecto>hitboxes;
-    ArrayList<Trap>hitboxes2;
-    Boolean objSpawned;
-    Boolean trapsSpawned;
-    private List<Enemy>z;
-    HashSet<Enemy> deadEnemies;
-    ShapeRenderer shapeRenderer;
+
     public GameScreen(final RogueliteGame game, Player player){
         this.game = game;
 
-        shapeRenderer=new ShapeRenderer();
         camera = new OrthographicCamera();
         camera.setToOrtho(false,800,800);
         decimalFormat = new DecimalFormat("0.0");
@@ -100,14 +79,6 @@ public class GameScreen implements Screen {
         battleOST.play();
         proyectilTexture = new Texture("Fireball.png");
         proyectiles = new ArrayList<>();
-        objCol=new Rectangle();
-        objCol2=new Rectangle();
-        objSpawned=false;
-        trapsSpawned=false;
-
-        z=new ArrayList<>((List<Enemy>) generadorEnemigos());
-        deadEnemies=new HashSet<>();
-        enemiesCol=new Rectangle();
 
         itemsAreSpawned = false;
         levelComplete = false;
@@ -132,161 +103,27 @@ public class GameScreen implements Screen {
         if(!levelComplete) game.batch.draw(gate,384,640);
         recorridoProyectil(elapsedTime);
         for (Proyectil proyectil : proyectiles) {
-            game.batch.draw((TextureRegion) game.gameAnimations.fireball.getKeyFrame(elapsedTime,true), proyectil.getPosicion().x, proyectil.getPosicion().y,32,32);
+            game.batch.draw(proyectilTexture, proyectil.getPosicion().x, proyectil.getPosicion().y);
         }
         game.batch.end();
 
-
-
-        if(!objSpawned) {
-            objSpawned=true;
-            spawnObj();
-        }else{
-            game.batch.begin();
-            for(int i=0; i<hitboxes.size();i++){
-                game.batch.draw(hitboxes.get(i).getTexture(), hitboxes.get(i).getHitbox().x - 5, hitboxes.get(i).getHitbox().y - 5);
-            }
-            game.batch.end();
-        }
-
-        //Interfaz de Stats del Juegador
         showPlayerStats();
 
-        //Animacion, movimento y hitbox del personaje
-        playerLogic();
-		
-        if(!trapsSpawned) {
-            trapsSpawned=true;
-            spawnTraps();
+        if(!itemsAreSpawned){   //Spawneo de items random y sus imagenes
+            itemsAreSpawned = true;
+            try {
+                spawnItems();
+            } catch (InstantiationException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
         }else{
             game.batch.begin();
-            for(int i=0;i<hitboxes2.size();i++){
-                game.batch.draw(hitboxes2.get(i).getTextura(), hitboxes2.get(i).getHitbox().x , hitboxes2.get(i).getHitbox().y );
-                game.batch.draw(hitboxes2.get(i).getBala().getTextura(), hitboxes2.get(i).getBala().getHitbox().x-10, hitboxes2.get(i).getBala().getHitbox().y-12);
-            }
+            game.batch.draw(item1.getSprite(),item1.getItemHitbox().x,item1.getItemHitbox().y);
+            game.batch.draw(item2.getSprite(),item2.getItemHitbox().x,item2.getItemHitbox().y);
+            game.batch.draw(item3.getSprite(),item3.getItemHitbox().x,item3.getItemHitbox().y);
             game.batch.end();
-        }
-
-        //Logica trampas
-            checkBulletsCollisions();
-            trapsState();
-
-
-        //Logica de pick Up de items
-        if(!noEnemies()) {
-            itemInteraction(item1);
-            itemInteraction(item2);
-            itemInteraction(item3);
-        }
-        //Logica de enemigos
-
-        for (int i=0;i<z.size();i++) {
-            game.batch.begin();
-            ataqueEnemigo(z.get(i), player);
-
-            ///Muerte enemigo
-            for (Proyectil p : proyectiles) {
-                recibirProyectil(z.get(i), p);
-            }
-
-            ///Animacion enemigos
-            if (z.get(i).getClass()==Zombie.class)animacionZombie((Zombie) z.get(i),player);
-            else if (z.get(i).getClass()== Slime.class)animacionSlime((Slime) z.get(i),player);
-            game.batch.end();
-            ///Persecucion
-            checkEnemiesCollisions();
-            if (!z.get(i).getHitBox().overlaps(player.getHitBox()) && z.get(i).getHealth() > 0) {
-                if (z.get(i).getHitBox().y != player.getHitBox().y) {
-                    if (z.get(i).getHitBox().y > player.getHitBox().y) {
-                        if(z.get(i).getHitBox().overlaps(enemiesCol)){
-                            z.get(i).getHitBox().y += z.get(i).getSpeed() * Gdx.graphics.getDeltaTime();
-                        }else {
-                            z.get(i).getHitBox().y -= z.get(i).getSpeed() * Gdx.graphics.getDeltaTime();
-                        }
-                    }
-                    if (z.get(i).getHitBox().y < player.getHitBox().y) {
-                        if(z.get(i).getHitBox().overlaps(enemiesCol)){
-                            z.get(i).getHitBox().y -= z.get(i).getSpeed() * Gdx.graphics.getDeltaTime();
-                        }else{
-                            z.get(i).getHitBox().y += z.get(i).getSpeed() * Gdx.graphics.getDeltaTime();
-                        }
-                    }
-                }
-                if (z.get(i).getClass()==Zombie.class) {
-                    if (z.get(i).getHitBox().x != player.getHitBox().x) {
-                        if (z.get(i).getHitBox().x > player.getHitBox().x) {
-                            if(z.get(i).getHitBox().overlaps(enemiesCol)){
-                                z.get(i).getHitBox().x += z.get(i).getSpeed() * Gdx.graphics.getDeltaTime();
-                            }else{
-                                z.get(i).setDirection(-1);
-                                z.get(i).setPosModifier(32);
-                                z.get(i).getHitBox().x -= z.get(i).getSpeed() * Gdx.graphics.getDeltaTime();
-                            }
-                        }
-                        if (z.get(i).getHitBox().x < player.getHitBox().x) {
-                            if(z.get(i).getHitBox().overlaps(enemiesCol)){
-                                z.get(i).getHitBox().x -= z.get(i).getSpeed() * Gdx.graphics.getDeltaTime();
-                            }else {
-                                z.get(i).setPosModifier(0);
-                                z.get(i).setDirection(1);
-                                z.get(i).getHitBox().x += z.get(i).getSpeed() * Gdx.graphics.getDeltaTime();
-                            }
-                        }
-                    }
-                } else if (z.get(i).getClass()==Slime.class) {
-                    if (z.get(i).getHitBox().x != player.getHitBox().x) {
-                        if(z.get(i).getHitBox().overlaps(enemiesCol)){
-                            z.get(i).getHitBox().x += z.get(i).getSpeed() * Gdx.graphics.getDeltaTime();
-                        }else {
-                            if (z.get(i).getHitBox().x > player.getHitBox().x) {
-                                z.get(i).setDirection(1);
-                                z.get(i).setPosModifier(0);
-                                z.get(i).getHitBox().x -= z.get(i).getSpeed() * Gdx.graphics.getDeltaTime();
-                            }
-                        }
-                        if (z.get(i).getHitBox().x < player.getHitBox().x) {
-                            if(z.get(i).getHitBox().overlaps(enemiesCol)){
-                                z.get(i).getHitBox().x -= z.get(i).getSpeed() * Gdx.graphics.getDeltaTime();
-                            }else {
-                                if (z.get(i).getHitBox().x < player.getHitBox().x) {
-                                    z.get(i).setPosModifier(32);
-                                    z.get(i).setDirection(-1);
-                                    z.get(i).getHitBox().x += z.get(i).getSpeed() * Gdx.graphics.getDeltaTime();
-                                }
-                            }
-                        }
-                    }
-                }
-                if (z.get(i).getHitBox().x != player.getHitBox().x) {
-
-
-                }
-            }
-
-
-            ///Ataque enemigo
-        }
-
-            ///Enemies colisiones
-
-        if(!noEnemies()) {
-            if (!itemsAreSpawned) {   //Spawneo de items random y sus imagenes
-                itemsAreSpawned = true;
-                try {
-                    spawnItems();
-                } catch (InstantiationException e) {
-                    throw new RuntimeException(e);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
-            } else {
-                game.batch.begin();
-                game.batch.draw(item1.getSprite(), item1.getItemHitbox().x, item1.getItemHitbox().y);
-                game.batch.draw(item2.getSprite(), item2.getItemHitbox().x, item2.getItemHitbox().y);
-                game.batch.draw(item3.getSprite(), item3.getItemHitbox().x, item3.getItemHitbox().y);
-                game.batch.end();
-
-            }
         }
 
         //Animacion del personaje
@@ -297,173 +134,7 @@ public class GameScreen implements Screen {
         if(player.getAnimationStatus() == PlayerAnimationStatus.RUN){
             game.batch.draw((TextureRegion) game.gameAnimations.playerRun.getKeyFrame(elapsedTime,true),player.getHitBox().x + player.getPosModifier(),player.getHitBox().y,32*player.getDirection(),32);
         }
-        game.batch.end();
-
-        if(Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.D)){
-            player.setAnimationStatus(PlayerAnimationStatus.RUN);
-        }else{
-            player.setAnimationStatus(PlayerAnimationStatus.IDLE);
-        }
-
-        //Logica de movimento del Personaje y sus colisiones
-        checkPlayerCollisions();
-        playerPosition();
-
-        //Exit Level
-        if(player.getHitBox().overlaps(exit) && Gdx.input.isKeyJustPressed(Input.Keys.E) && levelComplete){
-            battleOST.stop();
-            player.getHitBox().x = 384;
-            player.getHitBox().y = 250;
-            game.setScreen(new LoadingScreen(game,player));
-            dispose();
-        }
-
-        //Muerte del Jugador
-        if(player.getHealth() <= 0){
-            battleOST.stop();
-            player.getHitBox().x = 384;
-            player.getHitBox().y = 250;
-            game.setScreen(new EndScreen(game,player));
-        }
-    }
-
-    public void playerPosition(){
-        if(Gdx.input.isKeyPressed(Input.Keys.W)) {
-            if(!player.getHitBox().overlaps(objCol)){
-                player.getHitBox().y += player.getSpeed() * Gdx.graphics.getDeltaTime();
-            }
-            if(player.getHitBox().overlaps(objCol)){
-                player.getHitBox().y -= player.getSpeed() * Gdx.graphics.getDeltaTime();
-            }
-        }
-
-        if(Gdx.input.isKeyPressed(Input.Keys.A)){
-            if(!player.getHitBox().overlaps(objCol)){
-                player.getHitBox().x -= player.getSpeed() * Gdx.graphics.getDeltaTime();
-                player.setDirection(-1);
-                player.setPosModifier(32);
-            }
-            if(player.getHitBox().overlaps(objCol)){
-                player.getHitBox().x += player.getSpeed() * Gdx.graphics.getDeltaTime();
-            }
-        }
-
-        if(Gdx.input.isKeyPressed(Input.Keys.S)){
-            if(!player.getHitBox().overlaps(objCol)){
-                player.getHitBox().y -= player.getSpeed() * Gdx.graphics.getDeltaTime();
-            }
-            if(player.getHitBox().overlaps(objCol)){
-                player.getHitBox().y += (player.getSpeed() * Gdx.graphics.getDeltaTime());
-            }
-        }
-
-        if(Gdx.input.isKeyPressed(Input.Keys.D)){
-            if(!player.getHitBox().overlaps(objCol) ){
-                player.getHitBox().x += player.getSpeed() * Gdx.graphics.getDeltaTime();
-                player.setDirection(1);
-                player.setPosModifier(0);
-            }
-            if(player.getHitBox().overlaps(objCol) ){
-                player.getHitBox().x-=player.getSpeed()*Gdx.graphics.getDeltaTime();
-            }
-        }
-    }
-    public void checkPlayerCollisions(){
-        for(Objecto r: hitboxes) {
-            if(player.getHitBox().overlaps(r.getHitbox())) {
-                objCol = player.isOverlaping(r.getHitbox());
-                break;
-            }
-        }
-        for(Trap t: hitboxes2){
-            if(player.getHitBox().overlaps(t.getHitbox())){
-                objCol=player.isOverlaping(t.getHitbox());
-                break;
-            }
-        }
-    }
-    public void checkEnemiesCollisions(){
-        for(Enemy e: z){
-            for(Trap t: hitboxes2){
-                if(e.getHitBox().overlaps(t.getHitbox())){
-                    enemiesCol=t.getHitbox();
-                    break;
-                }
-            }
-            for(Objecto o: hitboxes){
-                if(e.getHitBox().overlaps(o.getHitbox())){
-                    enemiesCol=o.getHitbox();
-                    break;
-                }
-            }
-        }
-    }
-    public void checkBulletsCollisions(){
-        for(Objecto r: hitboxes) {
-            for(Trap t: hitboxes2){
-                if(t.getBala().getHitbox().overlaps(r.getHitbox())) {
-                    objCol2 = r.getHitbox();
-                    break;
-
-                }
-            }
-        }
-    }
-
-    private void trapsState() {
-        for(Trap t: hitboxes2) {
-            if(noEnemies()){
-                if (!t.isAtacando()) {
-                    t.setAtacando(true);
-                }
-                if(t.getBala().getHitbox().overlaps(player.getHitBox())){
-                    player.gettingDamage(t.getDamage());
-                    t.getBala().reinit(t.getBala().getHitbox().y);
-                    t.setAtacando(false);
-                }
-                if (t.getBala().getHitbox().overlaps(objCol2) || t.getBala().getHitbox().overlaps(new Rectangle(620, t.getBala().getHitbox().y, 16, 100)) || t.getBala().getHitbox().overlaps(new Rectangle(140, t.getHitbox().y, 16, 100))) {
-                    t.getBala().reinit(t.getBala().getHitbox().y);
-                    t.setAtacando(false);
-                }
-                if (t.isAtacando()) {
-                        t.getBala().getHitbox().x += 90 * Gdx.graphics.getDeltaTime() * (t.direccion());
-                }
-            }else{
-                t.getBala().reinit(t.getBala().getHitbox().y);
-            }
-        }
-
-    }
-    @Override
-    public void resize(int width, int height) {
-
-    }
-
-    @Override
-    public void pause() {
-
-    }
-
-    @Override
-    public void resume() {
-
-    }
-
-    @Override
-    public void hide() {
-
-    }
-
-    public void playerLogic(){
-        //Animacion del personaje
-        game.batch.begin();
-        if(player.getAnimationStatus() == PlayerAnimationStatus.IDLE){
-            game.batch.draw((TextureRegion) game.gameAnimations.playerIdle.getKeyFrame(elapsedTime,true),player.getHitBox().x + player.getPosModifier(),player.getHitBox().y,32*player.getDirection(),32);
-        }
-        if(player.getAnimationStatus() == PlayerAnimationStatus.RUN){
-            game.batch.draw((TextureRegion) game.gameAnimations.playerRun.getKeyFrame(elapsedTime,true),player.getHitBox().x + player.getPosModifier(),player.getHitBox().y,32*player.getDirection(),32);
-        }
-        game.batch.end();
+            game.batch.end();
 
         if(Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.D)){
             player.setAnimationStatus(PlayerAnimationStatus.RUN);
@@ -485,7 +156,7 @@ public class GameScreen implements Screen {
             player.setPosModifier(0);
         }
 
-        //Logica de diparo de proyectiles
+        //Logica de hitbox del personaje
 
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
             dispararProyectil(0, 1);
@@ -500,12 +171,56 @@ public class GameScreen implements Screen {
             dispararProyectil(1, 0);
         }
 
-        //Hitbox Personaje
+
+        //Area de juego: x - 160 a 608, y - 240 a 640
         if(player.getHitBox().x < 160) player.getHitBox().x = 160;
         if(player.getHitBox().x > 608) player.getHitBox().x = 608;
         if(player.getHitBox().y < 240) player.getHitBox().y = 240;
         if(player.getHitBox().y > 640) player.getHitBox().y = 640;
+
+        //Logia de pick Up de items
+        itemInteraction(item1);
+        itemInteraction(item2);
+        itemInteraction(item3);
+
+        //Exit Level
+        if(player.getHitBox().overlaps(exit) && Gdx.input.isKeyJustPressed(Input.Keys.E) && levelComplete){
+            battleOST.stop();
+            player.getHitBox().x = 384;
+            player.getHitBox().y = 250;
+            game.setScreen(new LoadingScreen(game,player));
+            dispose();
+        }
+
+        //Muerte del Jugador
+        if(player.getHealth() <= 0){
+            battleOST.stop();
+            player.getHitBox().x = 384;
+            player.getHitBox().y = 250;
+            game.setScreen(new EndScreen(game,player));
+        }
     }
+
+    @Override
+    public void resize(int width, int height) {
+
+    }
+
+    @Override
+    public void pause() {
+
+    }
+
+    @Override
+    public void resume() {
+
+    }
+
+    @Override
+    public void hide() {
+
+    }
+
 
     public void spawnItems() throws InstantiationException, IllegalAccessException {
         Random random = new Random();   //Spawnea 3 copias de items random y los posiciona en el mapa
@@ -555,16 +270,15 @@ public class GameScreen implements Screen {
         game.font.draw(game.batch,""+player.getScore(),680,617,32,Align.left,false);
 
         //Damage
-        game.batch.draw(new Texture("ItemIcons/damage_Icon.png"),128,118);
-        game.font.draw(game.batch,"Damage",128,108,32,Align.center,false);
-        game.font.draw(game.batch,""+(int)player.getWeapon().getDamage(),128,88,32,Align.center,false);
+        game.batch.draw(new Texture("ItemIcons/damage_Icon.png"),150,118);
+        game.font.draw(game.batch,"Damage",150,108,32,Align.center,false);
+        game.font.draw(game.batch,""+(int)player.getWeapon().getDamage(),150,88,32,Align.center,false);
 
         //CritChance
-        game.batch.draw(new Texture("ItemIcons/critChance_Icon.png"),215,118);
-        game.font.draw(game.batch,"Crit.Chance",215,108,32,Align.center,false);
-        game.font.draw(game.batch,""+decimalFormat.format(player.getWeapon().getCritChance()*100)+"%",215,88,32,Align.center,false);
-        if(!CritChanceItem.isSpawneable()) game.font.draw(game.batch,"MAX",215,68,32,Align.center,false);
-
+        game.batch.draw(new Texture("ItemIcons/critChance_Icon.png"),230,118);
+        game.font.draw(game.batch,"Crit.Chance",230,108,32,Align.center,false);
+        game.font.draw(game.batch,""+decimalFormat.format(player.getWeapon().getCritChance()*100)+"%",230,88,32,Align.center,false);
+        if(!CritChanceItem.isSpawneable()) game.font.draw(game.batch,"MAX",230,68,32,Align.center,false);
 
         //CritDamage
         game.batch.draw(new Texture("ItemIcons/critDamage_Icon.png"),320,118);
@@ -573,28 +287,28 @@ public class GameScreen implements Screen {
         if(!CritDamageItem.isSpawneable()) game.font.draw(game.batch,"MAX",320,68,32,Align.center,false);
 
         //Projectile Speed
-        game.batch.draw(new Texture("ItemIcons/pSpeed_Icon.png"),433,118);
-        game.font.draw(game.batch,"Attack Speed",433,108,32,Align.center,false);
-        game.font.draw(game.batch,""+(int)player.getWeapon().getpSpeed(),433,88,32,Align.center,false);
-        if(!PSpeedItem.isSpawneable()) game.font.draw(game.batch,"MAX",433,68,32,Align.center,false);
+        game.batch.draw(new Texture("ItemIcons/pSpeed_Icon.png"),415,118);
+        game.font.draw(game.batch,"Attack Speed",415,108,32,Align.center,false);
+        game.font.draw(game.batch,""+(int)player.getWeapon().getpSpeed(),415,88,32,Align.center,false);
+        if(!PSpeedItem.isSpawneable()) game.font.draw(game.batch,"MAX",415,68,32,Align.center,false);
 
         //Armor
-        game.batch.draw(new Texture("ItemIcons/armor_Icon.png"),520,118);
-        game.font.draw(game.batch,"Armor",520,108,32,Align.center,false);
-        game.font.draw(game.batch,""+decimalFormat.format(player.getArmor()*100)+"%",520,88,32,Align.center,false);
-        if(!ArmorItem.isSpawneable()) game.font.draw(game.batch,"MAX",520,68,32,Align.center,false);
+        game.batch.draw(new Texture("ItemIcons/armor_Icon.png"),490,118);
+        game.font.draw(game.batch,"Armor",490,108,32,Align.center,false);
+        game.font.draw(game.batch,""+decimalFormat.format(player.getArmor()*100)+"%",490,88,32,Align.center,false);
+        if(!ArmorItem.isSpawneable()) game.font.draw(game.batch,"MAX",490,68,32,Align.center,false);
 
         //Dodge
-        game.batch.draw(new Texture("ItemIcons/dodge_Icon.png"),580,118);
-        game.font.draw(game.batch,"Dodge",580,108,32,Align.center,false);
-        game.font.draw(game.batch,""+decimalFormat.format(player.getDodgeChance()*100)+"%",580,88,32,Align.center,false);
-        if(!DodgeItem.isSpawneable()) game.font.draw(game.batch,"MAX",580,68,32,Align.center,false);
+        game.batch.draw(new Texture("ItemIcons/dodge_Icon.png"),550,118);
+        game.font.draw(game.batch,"Dodge",550,108,32,Align.center,false);
+        game.font.draw(game.batch,""+decimalFormat.format(player.getDodgeChance()*100)+"%",550,88,32,Align.center,false);
+        if(!DodgeItem.isSpawneable()) game.font.draw(game.batch,"MAX",550,68,32,Align.center,false);
 
         //Speed
-        game.batch.draw(new Texture("ItemIcons/speed_Icon.png"),640,118);
-        game.font.draw(game.batch,"Speed",640,108,32,Align.center,false);
-        game.font.draw(game.batch,""+(int)player.getSpeed(),640,88,32,Align.center,false);
-        if(!SpeedItem.isSpawneable()) game.font.draw(game.batch,"MAX",640,68,32,Align.center,false);
+        game.batch.draw(new Texture("ItemIcons/speed_Icon.png"),610,118);
+        game.font.draw(game.batch,"Speed",610,108,32,Align.center,false);
+        game.font.draw(game.batch,""+(int)player.getSpeed(),610,88,32,Align.center,false);
+        if(!SpeedItem.isSpawneable()) game.font.draw(game.batch,"MAX",610,68,32,Align.center,false);
 
         game.batch.end();
     }
@@ -603,8 +317,6 @@ public class GameScreen implements Screen {
         if(player.getHitBox().overlaps(item.getItemHitbox())){
             displayDescription(item);
             if(Gdx.input.isKeyJustPressed(Input.Keys.E)){
-                Sound pickUp = Gdx.audio.newSound(Gdx.files.internal("Audios/item_pickUp.mp3"));
-                pickUp.play();
                 item.pickUp(player);
                 clearItems();
             }
@@ -615,7 +327,6 @@ public class GameScreen implements Screen {
         game.batch.begin();
         game.font.draw(game.batch,item.getName(),item.getItemHitbox().x-135,item.getItemHitbox().y-20,300f, Align.center,false);
         game.font.draw(game.batch,item.getDecription(),item.getItemHitbox().x-135,item.getItemHitbox().y-40,300f,Align.center,false);
-        game.font.draw(game.batch,"[E]",item.getItemHitbox().x-135,item.getItemHitbox().y-60,300f,Align.center,false);
         game.batch.end();
     }
 
@@ -652,111 +363,6 @@ public class GameScreen implements Screen {
             }
         }
     }
-
-    public void spawnObj(){
-        objetos=new Objetos();
-        hitboxes=new ArrayList<>();
-        for(int i=0;i<floorNumber+1;i++) hitboxes.add(objetos.randomObj());
-    }
-    public void spawnTraps() {
-        traps = new Trampas();
-        hitboxes2 = new ArrayList<>();
-        if (floorNumber != 0)
-            System.out.println(floorNumber);
-            if (floorNumber < 8) {
-                for (int i = 0; i < floorNumber; i++) hitboxes2.add(traps.randomTrp());
-            }else{
-                for (int i = 0; i < 8; i++) hitboxes2.add(traps.randomTrp());
-            }
-    }
-
-
-
-    public ArrayList generadorEnemigos (){
-        ArrayList l=new ArrayList<>();
-        Random r=new Random();
-        for (int i=0;i<floorNumber;i++){
-            l.add(new Zombie());
-            l.add(new Slime());
-        }
-        return l;
-    }
-
-    private void ataqueEnemigo(Enemy e, Player p){
-        float currentTime = TimeUtils.nanoTime() / 1000000000.0f; // Obtiene el tiempo actual en segundos
-        float elapsedTime = currentTime - lastAttackTime; // Calcula el tiempo transcurrido desde el último disparo
-        if (player.getHealth()>0 && e.getHealth()>0) {
-            if (e.getHitBox().overlaps(player.getHitBox()) && elapsedTime>=attackSpeed) {
-                player.setHealth((player.getHealth() - e.getDamage()));
-                lastAttackTime=currentTime;
-            }
-        }
-    }
-
-    public void animacionZombie (Zombie z, Player player){
-        if (z.getHitBox().overlaps(player.getHitBox()) && z.getHealth() > 0) {
-            game.batch.draw((TextureRegion) game.gameAnimations.zombieAttack.getKeyFrame(elapsedTime, true), z.getHitBox().x+z.getPosModifier(), z.getHitBox().y, 32 * z.getDirection(), 32);
-        }
-
-        if (z.getHealth() < 0 && !game.gameAnimations.zombieDie.isAnimationFinished(elapsedTime)) {
-            game.batch.draw((TextureRegion) game.gameAnimations.zombieDie.getKeyFrame(elapsedTime, true), z.getHitBox().x+z.getPosModifier(), z.getHitBox().y, 32 * z.getDirection(), 32);
-        }
-
-        if (z.getHealth() < 0) {
-            game.batch.draw((TextureRegion) game.gameAnimations.zombieMorido.getKeyFrame(elapsedTime, true), z.getHitBox().x+z.getPosModifier(), z.getHitBox().y, 32 * z.getDirection(), 32);
-        }
-
-        if (z.getHealth() > 0 && !z.getHitBox().overlaps(player.getHitBox())) {
-            game.batch.draw((TextureRegion) game.gameAnimations.zombieMove.getKeyFrame(elapsedTime, true), z.getHitBox().x+z.getPosModifier(), z.getHitBox().y, 32 * z.getDirection(), 32);
-        }
-    }
-
-    public void animacionSlime (Slime z,Player player){
-        if (z.getHitBox().overlaps(player.getHitBox()) && z.getHealth() > 0) {
-            game.batch.draw((TextureRegion) game.gameAnimations.slimeAttack.getKeyFrame(elapsedTime, true), z.getHitBox().x+z.getPosModifier(), z.getHitBox().y, 32 * z.getDirection(), 25);
-        }
-
-        if (z.getHealth() < 0) {
-            game.batch.draw((TextureRegion) game.gameAnimations.slimeMorido.getKeyFrame(elapsedTime, true), z.getHitBox().x+z.getPosModifier(), z.getHitBox().y, 32 * z.getDirection(), 25);
-        }
-
-        if (z.getHealth() > 0 && !z.getHitBox().overlaps(player.getHitBox())) {
-            game.batch.draw((TextureRegion) game.gameAnimations.slimeMove.getKeyFrame(elapsedTime, true), z.getHitBox().x+z.getPosModifier(), z.getHitBox().y, 32 * z.getDirection(), 25);
-        }
-    }
-    private void recibirProyectil (Enemy e,Proyectil p){
-        if (e.getHitBox().overlaps(p.getHitBox())) {
-            e.setHealth(e.getHealth() - player.getWeapon().getDamage());
-            if(e.getHealth()<=0) e.setStatus(false);
-        }
-        ///Puntaje enemigos
-        if(e.getHealth()<0){
-            player.setScore((int) (player.getScore()+e.getScore()));
-            e.setScore(0);
-            player.setXp((int) (player.getXp()+e.getXp()));
-            e.setXp(0);
-            subirLvl();
-        }
-    }
-    public void subirLvl (){
-        if (player.getXp()>=100){
-            player.setXp(player.getXp()-100);
-            player.setLevel(player.getLevel()+1);
-        }
-    }
-    private boolean noEnemies(){
-        for(Enemy e: z){
-            if(!e.status){
-                deadEnemies.add(e);
-            }
-        }
-        if((z.size())==deadEnemies.size()){
-            return false;
-        }else{
-            return true;
-        }
-    }
-
     @Override
     public void dispose() {
         walls.dispose();

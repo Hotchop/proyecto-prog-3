@@ -22,7 +22,6 @@ public class LoadingScreen implements Screen {
     private float elapsedTime;
     private Music loadingOST;
 
-
     public LoadingScreen(RogueliteGame game, Player player) {
         this.game = game;
         this.player = player;
