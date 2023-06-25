@@ -11,7 +11,6 @@ public class GameAnimations {
     protected Animation playerExit;
     protected Animation playerDie;
     protected Animation slimeMove;
-<<<<<<< Updated upstream
     protected Animation slimeAttack;
     protected  Animation slimeDie;
     protected Animation slimeMorido;
@@ -21,8 +20,6 @@ public class GameAnimations {
     protected Animation zombieMorido;
     protected Animation batMove;
     protected Animation batDie;
-=======
->>>>>>> Stashed changes
 
     public GameAnimations() {
         /**Player**/
@@ -53,11 +50,8 @@ public class GameAnimations {
         for(int j = 0; j < 3; j++){
             animationFrames[index++] = tempFrames[6][j];
         }
-<<<<<<< Updated upstream
         playerExit = new Animation<>(1f/0.8f,animationFrames);
-=======
-        playerExit = new Animation<>(1f/8f,animationFrames);
->>>>>>> Stashed changes
+
 
         //Die Animation
         animationFrames = new TextureRegion[8];
@@ -65,7 +59,6 @@ public class GameAnimations {
         for(int j = 0; j < 8; j++){
             animationFrames[index++] = tempFrames[7][j];
         }
-<<<<<<< Updated upstream
         playerDie = new Animation<>(1f/6f,animationFrames);
 
         /**Slime**/
@@ -133,17 +126,5 @@ public class GameAnimations {
             animationFrames[index++] = tempFrames[0][j];
         }
         batMove=new Animation<>(1f/8f,animationFrames);
-=======
-        playerDie = new Animation<>(1f/8f,animationFrames);
-
-        /**Slime**/
-        tempFrames = TextureRegion.split(new Texture("Animations/Slime_Medium_Green.png"),32,32);
-        animationFrames = new TextureRegion[4];
-        index = 0;
-        for(int j = 0; j < 4; j++){
-            animationFrames[index++] = tempFrames[2][j];
-        }
-        slimeMove = new Animation<>(1f/8f,animationFrames);
->>>>>>> Stashed changes
     }
 }

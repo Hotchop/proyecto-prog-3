@@ -41,12 +41,9 @@ public class RogueliteGame extends Game {
         itemArrayList.add(item8);
         itemArrayList.add(item9);
 
-<<<<<<< Updated upstream
         font = new BitmapFont(Gdx.files.internal("Minecraft.fnt"), Gdx.files.internal("Minecraft.png"), false);
         font.setColor(Color.WHITE);
 
-=======
->>>>>>> Stashed changes
         this.setScreen(new MainMenuScreen(this));
     }
     public void render(){

@@ -167,7 +167,7 @@ public class Player {
     public int getLEVEL_XP() {
         return LEVEL_XP;
     }
-<<<<<<< Updated upstream
+
     public Rectangle isOverlaping(Rectangle r){
         if(hitBox.overlaps(r)){
             return r;
@@ -178,6 +178,4 @@ public class Player {
         if(health>=damage) this.health-=damage;
         if(health<damage) this.health=0;
     }
-=======
->>>>>>> Stashed changes
 }
