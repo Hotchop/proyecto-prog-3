@@ -22,10 +22,10 @@ public class MainMenuScreen implements Screen {
     private BitmapFont fontMenu;
     protected Player player;
     protected Weapon playerWeapon;
-    private static final Color DEFAULT_COLOR = Color.WHITE; ///Atributos para dar color a la opcion seleccionada
+    private static final Color DEFAULT_COLOR = Color.WHITE;
     private static final Color HIGHLIGHT_COLOR = Color.YELLOW;
     private int selectedOption = 0;
-    private String[] menuOptions = {"Nuevo juego", "Highscores", "Salir del juego"}; ///Lista opciones
+    private String[] menuOptions = {"Nuevo juego", "Highscores", "Salir del juego"};
 
     public MainMenuScreen(final RogueliteGame game) {
         this.game = game;
@@ -36,7 +36,7 @@ public class MainMenuScreen implements Screen {
         camera.setToOrtho(false,800,800);
 
         menuOst = Gdx.audio.newMusic(Gdx.files.internal("MainMenuOST.mp3"));
-        menuOst.setVolume(0.1f);
+        menuOst.setVolume(0.3f);
         menuOst.setLooping(true);
         menuOst.play();
     }
@@ -74,7 +74,7 @@ public class MainMenuScreen implements Screen {
 
         handleInput();
     }
-///Interaccion con los botones
+
     private void handleInput() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
             selectedOption = Math.max(0, selectedOption -1 );
@@ -83,23 +83,17 @@ public class MainMenuScreen implements Screen {
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
             switch (selectedOption) {
                 case 0:
+                    GameScreen.floorNumber=0;
+                    menuOst.stop();
                     playerWeapon = new Weapon();
                     String name = JOptionPane.showInputDialog("Nombre de jugador");
-                    if (name != null) {
-                        menuOst.stop();
-                        player = new Player(name, playerWeapon);
-                        game.setScreen(new GameScreen(game, player));
-                        dispose();
-                        break;
-                    }
-                    //If cancel button is pressed
-                    else{
-                        game.setScreen(this);
-                        break;
-                    }
+                    player = new Player(name, playerWeapon);
+                    game.setScreen(new GameScreen(game, player));
+                    dispose();
+                    break;
                 case 1:
                     menuOst.stop();
-                    game.setScreen(game.getHighscoreScreen());
+                    game.setScreen(new HighscoreScreen(game));
                     break;
                 case 2:
                     Gdx.app.exit(); // Salir del juego
