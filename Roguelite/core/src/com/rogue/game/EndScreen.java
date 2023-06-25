@@ -49,7 +49,7 @@ public class EndScreen implements Screen {
         game.batch.setProjectionMatrix(camera.combined);
 
         game.font.getData().setScale(3);
-
+        
         game.batch.begin();
         GlyphLayout menuLayout = new GlyphLayout(game.font, "Has muerto");
         game.font.draw(game.batch, menuLayout, (Gdx.graphics.getWidth() - menuLayout.width) / 2, (Gdx.graphics.getHeight() - menuLayout.height) / 2 + 350);
