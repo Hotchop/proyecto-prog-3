@@ -106,6 +106,7 @@ public class GameScreen implements Screen {
         }
         game.batch.end();
 
+
         if(!itemsAreSpawned){   //Spawneo de items random y sus imagenes
             itemsAreSpawned = true;
             try {
@@ -145,6 +146,7 @@ public class GameScreen implements Screen {
 
         //Muerte del Jugador
         if(player.getHealth() <= 0){
+            battleOST.stop();
             player.getHitBox().x = 384;
             player.getHitBox().y = 250;
             game.setScreen(new EndScreen(game,player));
@@ -281,6 +283,7 @@ public class GameScreen implements Screen {
         game.font.draw(game.batch,"Crit.Chance",215,108,32,Align.center,false);
         game.font.draw(game.batch,""+decimalFormat.format(player.getWeapon().getCritChance()*100)+"%",215,88,32,Align.center,false);
         if(!CritChanceItem.isSpawneable()) game.font.draw(game.batch,"MAX",215,68,32,Align.center,false);
+
 
         //CritDamage
         game.batch.draw(new Texture("ItemIcons/critDamage_Icon.png"),320,118);

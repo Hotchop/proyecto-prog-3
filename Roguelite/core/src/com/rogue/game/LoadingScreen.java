@@ -3,6 +3,7 @@ package com.rogue.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -19,6 +20,7 @@ public class LoadingScreen implements Screen {
     private boolean animationComplete;
     private int animationCoordinate;
     private float elapsedTime;
+    private Music loadingOST;
 
 
     public LoadingScreen(RogueliteGame game, Player player) {
@@ -26,7 +28,10 @@ public class LoadingScreen implements Screen {
         this.player = player;
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 800);
-
+        loadingOST = Gdx.audio.newMusic(Gdx.files.internal("BattleWon.mp3"));
+        loadingOST.setVolume(0.1f);
+        loadingOST.setLooping(true);
+        loadingOST.play();
         game.font.getData().setScale(0.75f);
         animationComplete = false;
         animationCoordinate = -100;
@@ -68,6 +73,7 @@ public class LoadingScreen implements Screen {
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {  ///Cambio de escena al juego
+            loadingOST.stop();
             game.setScreen(new GameScreen(game, player));
             dispose();
         }

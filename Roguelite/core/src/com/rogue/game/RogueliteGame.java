@@ -1,5 +1,4 @@
 package com.rogue.game;
-
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -15,12 +14,23 @@ public class RogueliteGame extends Game {
     protected ArrayList<Item> itemArrayList;
     protected GameAnimations gameAnimations;
 
+    private HighscoreScreen highscoreScreen; ///Atributo para que no tenga que instanciarse cada vez que se llama
+
+    public HighscoreScreen getHighscoreScreen() {
+        return highscoreScreen;
+    }
+
+    public void setHighscoreScreen(HighscoreScreen highscoreScreen) {
+        this.highscoreScreen = highscoreScreen;
+    }
+
+
     @Override
     public void create() {
         batch = new SpriteBatch();
         font = new BitmapFont();
         gameAnimations = new GameAnimations();
-
+        highscoreScreen = new HighscoreScreen(this);
         itemArrayList = new ArrayList<>();
         MaxHealthItem item1 = new MaxHealthItem("Juicy Ribs","Maximum health","ItemSprites/maxHp.png",-50,-50);
         DamageItem item2 = new DamageItem("GUN","Proyectile damage","ItemSprites/damage.png",-50,-50);
