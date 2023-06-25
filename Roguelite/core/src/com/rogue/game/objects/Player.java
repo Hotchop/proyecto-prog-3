@@ -34,7 +34,7 @@ public class Player {
         this.level = 1;
         this.score = 0;
         this.weapon = weapon;
-        this.hitBox = new Rectangle(384,250,16,20);
+        this.hitBox = new Rectangle(384,250,32,32);
         this.direction = 1;
         this.posModifier = 0;
         this.animationStatus = PlayerAnimationStatus.IDLE;
@@ -166,15 +166,5 @@ public class Player {
 
     public int getLEVEL_XP() {
         return LEVEL_XP;
-    }
-    public Rectangle isOverlaping(Rectangle r){
-        if(hitBox.overlaps(r)){
-            return r;
-        }
-        return new Rectangle(0,0,0,0);
-    }
-    public void gettingDamage(int damage){
-        if(health>=damage) this.health-=damage;
-        if(health<damage) this.health=0;
     }
 }
