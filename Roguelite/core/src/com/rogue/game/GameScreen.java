@@ -44,6 +44,14 @@ import static com.badlogic.gdx.math.MathUtils.random;
 
 public class GameScreen implements Screen {
     private final RogueliteGame game;
+    private static ArrayList<Music> canciones=new ArrayList<>();
+    {
+        canciones.add(Gdx.audio.newMusic(Gdx.files.internal("Battle1.mp3")));
+        canciones.add(Gdx.audio.newMusic(Gdx.files.internal("Battle2.mp3")));
+        canciones.add(Gdx.audio.newMusic(Gdx.files.internal("Battle3.mp3")));
+        canciones.add(Gdx.audio.newMusic(Gdx.files.internal("Battle4.mp3")));
+        canciones.add(Gdx.audio.newMusic(Gdx.files.internal("Battle5.mp3")));
+    }
     private Music battleOST;
     private OrthographicCamera camera;
     Texture walls;
@@ -97,7 +105,7 @@ public class GameScreen implements Screen {
 
         game.font.getData().setScale(0.5f);
 
-        battleOST = Gdx.audio.newMusic(Gdx.files.internal("Battle1.mp3"));
+        this.battleOST = canciones.get((int) (Math.random()*(5)));
         soundProyectil = Gdx.audio.newSound(Gdx.files.internal("ProyectilSoundP.wav"));
         battleOST.setVolume(0.1f);
         battleOST.setLooping(true);

@@ -58,7 +58,7 @@ public class EndScreen implements Screen {
         GlyphLayout lvlReached = new GlyphLayout(game.font, "Nivel MAX: " + player.getLevel());
         game.font.draw(game.batch, lvlReached, (Gdx.graphics.getWidth() - menuLayout.width) / 2 - 100, (Gdx.graphics.getHeight() - menuLayout.height) / 2 - 60);
 
-        GlyphLayout scoreReached = new GlyphLayout(game.font, "Score: " + player.getLevel());
+        GlyphLayout scoreReached = new GlyphLayout(game.font, "Score: " + player.getScore());
         game.font.draw(game.batch, scoreReached, (Gdx.graphics.getWidth() - menuLayout.width) / 2 - 100, (Gdx.graphics.getHeight() - menuLayout.height) / 2 - 120);
         game.font.draw(game.batch, "Presiona Enter para volver al menu", 400, 50, 0, Align.center, false);
         ///Persistencia JSON
