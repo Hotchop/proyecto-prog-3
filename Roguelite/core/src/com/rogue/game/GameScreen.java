@@ -79,7 +79,6 @@ public class GameScreen implements Screen {
         battleOST.play();
         proyectilTexture = new Texture("Fireball.png");
         proyectiles = new ArrayList<>();
-
         itemsAreSpawned = false;
         levelComplete = false;
 
@@ -103,11 +102,9 @@ public class GameScreen implements Screen {
         if(!levelComplete) game.batch.draw(gate,384,640);
         recorridoProyectil(elapsedTime);
         for (Proyectil proyectil : proyectiles) {
-            game.batch.draw(proyectilTexture, proyectil.getPosicion().x, proyectil.getPosicion().y);
+            game.batch.draw((TextureRegion) game.gameAnimations.fireball.getKeyFrame(elapsedTime,true), proyectil.getPosicion().x, proyectil.getPosicion().y,32,32);
         }
         game.batch.end();
-
-        showPlayerStats();
 
         if(!itemsAreSpawned){   //Spawneo de items random y sus imagenes
             itemsAreSpawned = true;
@@ -126,57 +123,11 @@ public class GameScreen implements Screen {
             game.batch.end();
         }
 
-        //Animacion del personaje
-        game.batch.begin();
-        if(player.getAnimationStatus() == PlayerAnimationStatus.IDLE){
-            game.batch.draw((TextureRegion) game.gameAnimations.playerIdle.getKeyFrame(elapsedTime,true),player.getHitBox().x + player.getPosModifier(),player.getHitBox().y,32*player.getDirection(),32);
-        }
-        if(player.getAnimationStatus() == PlayerAnimationStatus.RUN){
-            game.batch.draw((TextureRegion) game.gameAnimations.playerRun.getKeyFrame(elapsedTime,true),player.getHitBox().x + player.getPosModifier(),player.getHitBox().y,32*player.getDirection(),32);
-        }
-        game.batch.end();
+        //Interfaz de Stats del Juegador
+        showPlayerStats();
 
-        if(Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.D)){
-            player.setAnimationStatus(PlayerAnimationStatus.RUN);
-        }else{
-            player.setAnimationStatus(PlayerAnimationStatus.IDLE);
-        }
-
-        //Logica de movimento del Personaje
-        if(Gdx.input.isKeyPressed(Input.Keys.W)) player.getHitBox().y += player.getSpeed() * Gdx.graphics.getDeltaTime();
-        if(Gdx.input.isKeyPressed(Input.Keys.A)){
-            player.getHitBox().x -= player.getSpeed() * Gdx.graphics.getDeltaTime();
-            player.setDirection(-1);
-            player.setPosModifier(32);
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.S)) player.getHitBox().y -= player.getSpeed() * Gdx.graphics.getDeltaTime();
-        if(Gdx.input.isKeyPressed(Input.Keys.D)){
-            player.getHitBox().x += player.getSpeed() * Gdx.graphics.getDeltaTime();
-            player.setDirection(1);
-            player.setPosModifier(0);
-        }
-
-        //Logica de hitbox del personaje
-
-        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            dispararProyectil(0, 1);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            dispararProyectil(0, -1);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            dispararProyectil(-1, 0);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            dispararProyectil(1, 0);
-        }
-
-
-        //Area de juego: x - 160 a 608, y - 240 a 640
-        if(player.getHitBox().x < 160) player.getHitBox().x = 160;
-        if(player.getHitBox().x > 608) player.getHitBox().x = 608;
-        if(player.getHitBox().y < 240) player.getHitBox().y = 240;
-        if(player.getHitBox().y > 640) player.getHitBox().y = 640;
+        //Animacion, movimento y hitbox del personaje
+        playerLogic();
 
         //Logia de pick Up de items
         itemInteraction(item1);
@@ -220,6 +171,58 @@ public class GameScreen implements Screen {
 
     }
 
+    public void playerLogic(){
+        //Animacion del personaje
+        game.batch.begin();
+        if(player.getAnimationStatus() == PlayerAnimationStatus.IDLE){
+            game.batch.draw((TextureRegion) game.gameAnimations.playerIdle.getKeyFrame(elapsedTime,true),player.getHitBox().x + player.getPosModifier(),player.getHitBox().y,32*player.getDirection(),32);
+        }
+        if(player.getAnimationStatus() == PlayerAnimationStatus.RUN){
+            game.batch.draw((TextureRegion) game.gameAnimations.playerRun.getKeyFrame(elapsedTime,true),player.getHitBox().x + player.getPosModifier(),player.getHitBox().y,32*player.getDirection(),32);
+        }
+        game.batch.end();
+
+        if(Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.D)){
+            player.setAnimationStatus(PlayerAnimationStatus.RUN);
+        }else{
+            player.setAnimationStatus(PlayerAnimationStatus.IDLE);
+        }
+
+        //Logica de movimento del Personaje
+        if(Gdx.input.isKeyPressed(Input.Keys.W)) player.getHitBox().y += player.getSpeed() * Gdx.graphics.getDeltaTime();
+        if(Gdx.input.isKeyPressed(Input.Keys.A)){
+            player.getHitBox().x -= player.getSpeed() * Gdx.graphics.getDeltaTime();
+            player.setDirection(-1);
+            player.setPosModifier(32);
+        }
+        if(Gdx.input.isKeyPressed(Input.Keys.S)) player.getHitBox().y -= player.getSpeed() * Gdx.graphics.getDeltaTime();
+        if(Gdx.input.isKeyPressed(Input.Keys.D)){
+            player.getHitBox().x += player.getSpeed() * Gdx.graphics.getDeltaTime();
+            player.setDirection(1);
+            player.setPosModifier(0);
+        }
+
+        //Logica de diparo de proyectiles
+
+        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+            dispararProyectil(0, 1);
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+            dispararProyectil(0, -1);
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+            dispararProyectil(-1, 0);
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+            dispararProyectil(1, 0);
+        }
+
+        //Hitbox Personaje
+        if(player.getHitBox().x < 160) player.getHitBox().x = 160;
+        if(player.getHitBox().x > 608) player.getHitBox().x = 608;
+        if(player.getHitBox().y < 240) player.getHitBox().y = 240;
+        if(player.getHitBox().y > 640) player.getHitBox().y = 640;
+    }
 
     public void spawnItems() throws InstantiationException, IllegalAccessException {
         Random random = new Random();   //Spawnea 3 copias de items random y los posiciona en el mapa
@@ -269,15 +272,15 @@ public class GameScreen implements Screen {
         game.font.draw(game.batch,""+player.getScore(),680,617,32,Align.left,false);
 
         //Damage
-        game.batch.draw(new Texture("ItemIcons/damage_Icon.png"),150,118);
-        game.font.draw(game.batch,"Damage",150,108,32,Align.center,false);
-        game.font.draw(game.batch,""+(int)player.getWeapon().getDamage(),150,88,32,Align.center,false);
+        game.batch.draw(new Texture("ItemIcons/damage_Icon.png"),128,118);
+        game.font.draw(game.batch,"Damage",128,108,32,Align.center,false);
+        game.font.draw(game.batch,""+(int)player.getWeapon().getDamage(),128,88,32,Align.center,false);
 
         //CritChance
-        game.batch.draw(new Texture("ItemIcons/critChance_Icon.png"),230,118);
-        game.font.draw(game.batch,"Crit.Chance",230,108,32,Align.center,false);
-        game.font.draw(game.batch,""+decimalFormat.format(player.getWeapon().getCritChance()*100)+"%",230,88,32,Align.center,false);
-        if(!CritChanceItem.isSpawneable()) game.font.draw(game.batch,"MAX",230,68,32,Align.center,false);
+        game.batch.draw(new Texture("ItemIcons/critChance_Icon.png"),215,118);
+        game.font.draw(game.batch,"Crit.Chance",215,108,32,Align.center,false);
+        game.font.draw(game.batch,""+decimalFormat.format(player.getWeapon().getCritChance()*100)+"%",215,88,32,Align.center,false);
+        if(!CritChanceItem.isSpawneable()) game.font.draw(game.batch,"MAX",215,68,32,Align.center,false);
 
         //CritDamage
         game.batch.draw(new Texture("ItemIcons/critDamage_Icon.png"),320,118);
@@ -286,28 +289,28 @@ public class GameScreen implements Screen {
         if(!CritDamageItem.isSpawneable()) game.font.draw(game.batch,"MAX",320,68,32,Align.center,false);
 
         //Projectile Speed
-        game.batch.draw(new Texture("ItemIcons/pSpeed_Icon.png"),415,118);
-        game.font.draw(game.batch,"Attack Speed",415,108,32,Align.center,false);
-        game.font.draw(game.batch,""+(int)player.getWeapon().getpSpeed(),415,88,32,Align.center,false);
-        if(!PSpeedItem.isSpawneable()) game.font.draw(game.batch,"MAX",415,68,32,Align.center,false);
+        game.batch.draw(new Texture("ItemIcons/pSpeed_Icon.png"),433,118);
+        game.font.draw(game.batch,"Attack Speed",433,108,32,Align.center,false);
+        game.font.draw(game.batch,""+(int)player.getWeapon().getpSpeed(),433,88,32,Align.center,false);
+        if(!PSpeedItem.isSpawneable()) game.font.draw(game.batch,"MAX",433,68,32,Align.center,false);
 
         //Armor
-        game.batch.draw(new Texture("ItemIcons/armor_Icon.png"),490,118);
-        game.font.draw(game.batch,"Armor",490,108,32,Align.center,false);
-        game.font.draw(game.batch,""+decimalFormat.format(player.getArmor()*100)+"%",490,88,32,Align.center,false);
-        if(!ArmorItem.isSpawneable()) game.font.draw(game.batch,"MAX",490,68,32,Align.center,false);
+        game.batch.draw(new Texture("ItemIcons/armor_Icon.png"),520,118);
+        game.font.draw(game.batch,"Armor",520,108,32,Align.center,false);
+        game.font.draw(game.batch,""+decimalFormat.format(player.getArmor()*100)+"%",520,88,32,Align.center,false);
+        if(!ArmorItem.isSpawneable()) game.font.draw(game.batch,"MAX",520,68,32,Align.center,false);
 
         //Dodge
-        game.batch.draw(new Texture("ItemIcons/dodge_Icon.png"),550,118);
-        game.font.draw(game.batch,"Dodge",550,108,32,Align.center,false);
-        game.font.draw(game.batch,""+decimalFormat.format(player.getDodgeChance()*100)+"%",550,88,32,Align.center,false);
-        if(!DodgeItem.isSpawneable()) game.font.draw(game.batch,"MAX",550,68,32,Align.center,false);
+        game.batch.draw(new Texture("ItemIcons/dodge_Icon.png"),580,118);
+        game.font.draw(game.batch,"Dodge",580,108,32,Align.center,false);
+        game.font.draw(game.batch,""+decimalFormat.format(player.getDodgeChance()*100)+"%",580,88,32,Align.center,false);
+        if(!DodgeItem.isSpawneable()) game.font.draw(game.batch,"MAX",580,68,32,Align.center,false);
 
         //Speed
-        game.batch.draw(new Texture("ItemIcons/speed_Icon.png"),610,118);
-        game.font.draw(game.batch,"Speed",610,108,32,Align.center,false);
-        game.font.draw(game.batch,""+(int)player.getSpeed(),610,88,32,Align.center,false);
-        if(!SpeedItem.isSpawneable()) game.font.draw(game.batch,"MAX",610,68,32,Align.center,false);
+        game.batch.draw(new Texture("ItemIcons/speed_Icon.png"),640,118);
+        game.font.draw(game.batch,"Speed",640,108,32,Align.center,false);
+        game.font.draw(game.batch,""+(int)player.getSpeed(),640,88,32,Align.center,false);
+        if(!SpeedItem.isSpawneable()) game.font.draw(game.batch,"MAX",640,68,32,Align.center,false);
 
         game.batch.end();
     }
@@ -316,6 +319,8 @@ public class GameScreen implements Screen {
         if(player.getHitBox().overlaps(item.getItemHitbox())){
             displayDescription(item);
             if(Gdx.input.isKeyJustPressed(Input.Keys.E)){
+                Sound pickUp = Gdx.audio.newSound(Gdx.files.internal("Audios/item_pickUp.mp3"));
+                pickUp.play();
                 item.pickUp(player);
                 clearItems();
             }
@@ -326,6 +331,7 @@ public class GameScreen implements Screen {
         game.batch.begin();
         game.font.draw(game.batch,item.getName(),item.getItemHitbox().x-135,item.getItemHitbox().y-20,300f, Align.center,false);
         game.font.draw(game.batch,item.getDecription(),item.getItemHitbox().x-135,item.getItemHitbox().y-40,300f,Align.center,false);
+        game.font.draw(game.batch,"[E]",item.getItemHitbox().x-135,item.getItemHitbox().y-60,300f,Align.center,false);
         game.batch.end();
     }
 

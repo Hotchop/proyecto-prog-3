@@ -10,6 +10,7 @@ public class GameAnimations {
     protected Animation playerIdle;
     protected Animation playerExit;
     protected Animation playerDie;
+    protected Animation fireball;
     protected Animation slimeMove;
 
     public GameAnimations() {
@@ -41,7 +42,7 @@ public class GameAnimations {
         for(int j = 0; j < 3; j++){
             animationFrames[index++] = tempFrames[6][j];
         }
-        playerExit = new Animation<>(1f/8f,animationFrames);
+        playerExit = new Animation<>(1f/0.8f,animationFrames);
 
         //Die Animation
         animationFrames = new TextureRegion[8];
@@ -50,6 +51,16 @@ public class GameAnimations {
             animationFrames[index++] = tempFrames[7][j];
         }
         playerDie = new Animation<>(1f/8f,animationFrames);
+
+        /**Fireball**/
+        tempFrames = TextureRegion.split(new Texture("Animations/fireball 16x16.png"),16,16);
+        animationFrames = new TextureRegion[4];
+        index = 0;
+        for(int j = 0; j < 4; j++){
+            animationFrames[index++] = tempFrames[0][j];
+        }
+        fireball = new Animation<>(1f/8f,animationFrames);
+
 
         /**Slime**/
         tempFrames = TextureRegion.split(new Texture("Animations/Slime_Medium_Green.png"),32,32);
