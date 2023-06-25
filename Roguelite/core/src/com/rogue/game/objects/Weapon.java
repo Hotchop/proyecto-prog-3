@@ -5,18 +5,58 @@ public class Weapon {
     private float critChance;
     private float critDamage;
     private float pSpeed;
-    private float pSize;
-
     private final float MAX_CRITCHANCE = 0.5f;
     private final float MAX_CRITDAMAGE = 3f;
     private final float MAX_PSPEED = 500f;
-    private final float MAX_PSIZE = 64f;
 
     public Weapon() {
         this.damage = 50;
         this.critChance = 0;
-        this.critDamage = 0;
+        this.critDamage = 1;
         this.pSpeed = 200;
-        this.pSize = 32f;
+    }
+
+    public float getDamage() {
+        return damage;
+    }
+
+    public void setDamage(float damage) {
+        this.damage = damage;
+    }
+
+    public float getCritChance() {
+        return critChance;
+    }
+
+    public void setCritChance(float critChance) {
+        this.critChance = critChance;
+    }
+
+    public float getCritDamage() {
+        return critDamage;
+    }
+
+    public void setCritDamage(float critDamage) {
+        this.critDamage = critDamage;
+    }
+
+    public float getpSpeed() {
+        return pSpeed;
+    }
+
+    public void setpSpeed(float pSpeed) {
+        this.pSpeed = pSpeed;
+    }
+
+    public float getMAX_CRITCHANCE() {
+        return MAX_CRITCHANCE;
+    }
+
+    public float getMAX_CRITDAMAGE() {
+        return MAX_CRITDAMAGE;
+    }
+
+    public float getMAX_PSPEED() {
+        return MAX_PSPEED;
     }
 }
