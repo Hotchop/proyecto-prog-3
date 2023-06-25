@@ -9,13 +9,17 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+<<<<<<< Updated upstream
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+=======
+>>>>>>> Stashed changes
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.rogue.game.enums.PlayerAnimationStatus;
 import com.rogue.game.objects.Player;
+<<<<<<< Updated upstream
 import com.rogue.game.objects.enemies.*;
 import com.rogue.game.objects.items.*;
 import com.badlogic.gdx.math.Vector2;
@@ -26,6 +30,15 @@ import com.rogue.game.objects.mapstuff.Objecto;
 import com.rogue.game.objects.mapstuff.Objetos;
 import com.rogue.game.objects.mapstuff.traps.Trampas;
 import com.rogue.game.objects.mapstuff.traps.Trap;
+=======
+import com.rogue.game.objects.items.*;
+
+
+import java.text.DecimalFormat;
+import java.util.Random;
+
+import static com.badlogic.gdx.math.MathUtils.random;
+>>>>>>> Stashed changes
 
 
 import java.util.ArrayList;
@@ -46,10 +59,16 @@ public class GameScreen implements Screen {
     Texture floor;
     Texture door;
     Texture gate;
+<<<<<<< Updated upstream
+=======
+    Texture fireball;
+    Texture enemyBullet;
+>>>>>>> Stashed changes
     float elapsedTime;
     Player player;
     Item item1,item2,item3;
     private final DecimalFormat decimalFormat;
+<<<<<<< Updated upstream
     public static int floorNumber;
     Rectangle exit;
     boolean itemsAreSpawned;
@@ -72,6 +91,13 @@ public class GameScreen implements Screen {
     private List<Enemy>z;
     HashSet<Enemy> deadEnemies;
     ShapeRenderer shapeRenderer;
+=======
+    static int floorNumber = 0;
+    Rectangle exit;
+    boolean itemsAreSpawned;
+    boolean levelComplete;
+
+>>>>>>> Stashed changes
     public GameScreen(final RogueliteGame game, Player player){
         this.game = game;
 
@@ -91,6 +117,7 @@ public class GameScreen implements Screen {
         floorNumber++;
         exit = new Rectangle(384,640,32,32);
 
+<<<<<<< Updated upstream
         game.font.getData().setScale(0.5f);
 
         battleOST = Gdx.audio.newMusic(Gdx.files.internal("Battle1.mp3"));
@@ -114,6 +141,11 @@ public class GameScreen implements Screen {
         itemsAreSpawned = false;
         levelComplete = false;
 
+=======
+        itemsAreSpawned = false;
+        levelComplete = false;
+
+>>>>>>> Stashed changes
     }
     @Override
     public void show() {
@@ -124,7 +156,11 @@ public class GameScreen implements Screen {
     public void render(float delta) {
         elapsedTime += Gdx.graphics.getDeltaTime();	//Tiempo de juego
         ScreenUtils.clear(0.145f, 0.075f, 0.102f, 1);
+<<<<<<< Updated upstream
 		
+=======
+
+>>>>>>> Stashed changes
         camera.update();
 		
         game.batch.begin();
@@ -132,14 +168,18 @@ public class GameScreen implements Screen {
         game.batch.draw(walls,128,160);
         game.batch.draw(door,370,640);
         if(!levelComplete) game.batch.draw(gate,384,640);
+<<<<<<< Updated upstream
         recorridoProyectil(elapsedTime);
         for (Proyectil proyectil : proyectiles) {
             game.batch.draw(proyectilTexture, proyectil.getPosicion().x, proyectil.getPosicion().y);
         }
+=======
+>>>>>>> Stashed changes
         game.batch.end();
 
         showPlayerStats();
 
+<<<<<<< Updated upstream
 
         if(!objSpawned) {
             objSpawned=true;
@@ -150,6 +190,47 @@ public class GameScreen implements Screen {
                 game.batch.draw(hitboxes.get(i).getTexture(), hitboxes.get(i).getHitbox().x - 5, hitboxes.get(i).getHitbox().y - 5);
             }
             game.batch.end();
+=======
+        if(!itemsAreSpawned){   //Spawneo de items random y sus imagenes
+            itemsAreSpawned = true;
+            try {
+                spawnItems();
+            } catch (InstantiationException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }else{
+            game.batch.begin();
+            game.batch.draw(item1.getSprite(),item1.getItemHitbox().x,item1.getItemHitbox().y);
+            game.batch.draw(item2.getSprite(),item2.getItemHitbox().x,item2.getItemHitbox().y);
+            game.batch.draw(item3.getSprite(),item3.getItemHitbox().x,item3.getItemHitbox().y);
+            game.batch.end();
+        }
+
+        //Animacion del personaje
+        game.batch.begin();
+        if(player.getAnimationStatus() == PlayerAnimationStatus.IDLE){
+            game.batch.draw((TextureRegion) game.gameAnimations.playerIdle.getKeyFrame(elapsedTime,true),player.getHitBox().x + player.getPosModifier(),player.getHitBox().y,32*player.getDirection(),32);
+        }
+        if(player.getAnimationStatus() == PlayerAnimationStatus.RUN){
+            game.batch.draw((TextureRegion) game.gameAnimations.playerRun.getKeyFrame(elapsedTime,true),player.getHitBox().x + player.getPosModifier(),player.getHitBox().y,32*player.getDirection(),32);
+        }
+        game.batch.end();
+
+        if(Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.D)){
+            player.setAnimationStatus(PlayerAnimationStatus.RUN);
+        }else{
+            player.setAnimationStatus(PlayerAnimationStatus.IDLE);
+        }
+
+        //Logica de movimento del Personaje
+        if(Gdx.input.isKeyPressed(Input.Keys.W)) player.getHitBox().y += player.getSpeed() * Gdx.graphics.getDeltaTime();
+        if(Gdx.input.isKeyPressed(Input.Keys.A)){
+            player.getHitBox().x -= player.getSpeed() * Gdx.graphics.getDeltaTime();
+            player.setDirection(-1);
+            player.setPosModifier(32);
+>>>>>>> Stashed changes
         }
         if(!trapsSpawned) {
             trapsSpawned=true;
@@ -164,6 +245,7 @@ public class GameScreen implements Screen {
         }
 
 
+<<<<<<< Updated upstream
 
         //Logica de hitbox del personaje
 
@@ -185,12 +267,16 @@ public class GameScreen implements Screen {
             trapsState();
 
 
+=======
+        //Logica de hitbox del personaje
+>>>>>>> Stashed changes
         //Area de juego: x - 160 a 608, y - 240 a 640
         if(player.getHitBox().x < 160) player.getHitBox().x = 160;
         if(player.getHitBox().x > 608) player.getHitBox().x = 608;
         if(player.getHitBox().y < 240) player.getHitBox().y = 240;
         if(player.getHitBox().y > 640) player.getHitBox().y = 640;
 
+<<<<<<< Updated upstream
         //Logica de pick Up de items
         if(!noEnemies()) {
             itemInteraction(item1);
@@ -331,6 +417,15 @@ public class GameScreen implements Screen {
         //Exit Level
         if(player.getHitBox().overlaps(exit) && Gdx.input.isKeyJustPressed(Input.Keys.E) && levelComplete){
             battleOST.stop();
+=======
+        //Logia de pick Up de items
+        itemInteraction(item1);
+        itemInteraction(item2);
+        itemInteraction(item3);
+
+        //Exit Level
+        if(player.getHitBox().overlaps(exit) && Gdx.input.isKeyJustPressed(Input.Keys.E) && levelComplete){
+>>>>>>> Stashed changes
             player.getHitBox().x = 384;
             player.getHitBox().y = 250;
             game.setScreen(new LoadingScreen(game,player));
@@ -339,7 +434,10 @@ public class GameScreen implements Screen {
 
         //Muerte del Jugador
         if(player.getHealth() <= 0){
+<<<<<<< Updated upstream
             battleOST.stop();
+=======
+>>>>>>> Stashed changes
             player.getHitBox().x = 384;
             player.getHitBox().y = 250;
             game.setScreen(new EndScreen(game,player));
@@ -473,7 +571,10 @@ public class GameScreen implements Screen {
 
     }
 
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
     public void spawnItems() throws InstantiationException, IllegalAccessException {
         Random random = new Random();   //Spawnea 3 copias de items random y los posiciona en el mapa
         Item orginal1 = game.itemArrayList.get(random(0,game.itemArrayList.size()-1));
@@ -590,6 +691,7 @@ public class GameScreen implements Screen {
         levelComplete = true;
     }
 
+<<<<<<< Updated upstream
 	private void dispararProyectil(int direccionX, int direccionY) {
         if (direccionX != 0 || direccionY != 0) {
             float currentTime = TimeUtils.nanoTime() / 1000000000.0f; // Obtiene el tiempo actual en segundos
@@ -726,5 +828,13 @@ public class GameScreen implements Screen {
         floor.dispose();
         door.dispose();
         gate.dispose();
+=======
+    @Override
+    public void dispose() {
+         walls.dispose();
+         floor.dispose();
+         door.dispose();
+         gate.dispose();
+>>>>>>> Stashed changes
     }
 }
