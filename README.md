@@ -16,3 +16,6 @@ Que lo disfruten!
 <br />
 Un proyecto de:<br />
 Alegre Abigail, Burgos Lautaro, Herrero Lucas y Miranda Nicolás
+<br />
+<br />
+Nota: La carpeta test incluye un ejemplo de juego de prueba en libGdx y la carpeta Assets son imagenes de referencia en el desarrollo del juego. Todo el proyecto esta en la carpeta "Roguelite". 
