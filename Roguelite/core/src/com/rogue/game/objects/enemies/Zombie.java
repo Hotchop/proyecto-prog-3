@@ -5,14 +5,15 @@ import com.rogue.game.interfaces.IRandomXY;
 
 public class Zombie extends Enemy implements IRandomXY {
     public Zombie() {
-        this.health = 50 * Enemy.difficulty;
+        this.health = 120;
+        this.MAX_HEALTH = 120;
         this.speed = 40;
-        this.damage = 15 * Enemy.difficulty;
-        this.xp = 5;
-        this.score = 100 * Enemy.difficulty;
-        this.hitBox = new Rectangle(generacionAleatoriaX(),generacionAleatoriaY(),40,40);
-        this.hitBoxAtaque=new Rectangle(hitBox.x,hitBox.y,20,20);
+        this.damage = 15;
+        this.xp = 25;
+        this.score = 100;
+        this.hitBox = new Rectangle(generacionAleatoriaX(),generacionAleatoriaY(),45,45);
         this.direction =1;
+        this.hitBoxAtaque=new Rectangle(hitBox.x+16,hitBox.y+10,12,24);
         this.posModifier = posModifier;
         this.status =true;
 
@@ -21,10 +22,9 @@ public class Zombie extends Enemy implements IRandomXY {
 
     @Override
     public int generacionAleatoriaX(){
-            return (int)((Math.random()*(570-190))+190);
+        return (int)((Math.random()*(570-190))+190);
     }
     public int generacionAleatoriaY(){
-            return (int)((Math.random()*(620-280))+280);
+        return (int)((Math.random()*(620-280))+280);
     }
 }
-

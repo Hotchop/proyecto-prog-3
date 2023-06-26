@@ -7,19 +7,22 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 public class GameAnimations {
     protected TextureRegion[] animationFrames;
     protected Animation playerRun;
+    protected Animation playerRunDamage;
     protected Animation playerIdle;
+    protected Animation playerIdleDamage;
+
     protected Animation playerExit;
     protected Animation playerDie;
     protected Animation slimeMove;
+    protected Animation slimeDamaged;
     protected Animation slimeAttack;
-    protected  Animation slimeDie;
     protected Animation slimeMorido;
     protected Animation zombieMove;
     protected  Animation zombieAttack;
+    protected Animation zombieDamaged;
     protected Animation zombieDie;
     protected Animation zombieMorido;
     protected Animation batMove;
-    protected Animation batDie;
 
     public GameAnimations() {
         /**Player**/
@@ -61,6 +64,23 @@ public class GameAnimations {
         }
         playerDie = new Animation<>(1f/6f,animationFrames);
 
+        //Daño running
+        tempFrames = TextureRegion.split(new Texture("Animations/AnimationSheet_Character_Damage.png"),32,32);
+        animationFrames = new TextureRegion[8];
+        index = 0;
+        for(int j = 0; j < 8; j++){
+            animationFrames[index++] = tempFrames[3][j];
+        }
+        playerRunDamage = new Animation(1f/16f,animationFrames);
+
+        //Daño idle Animation
+        animationFrames = new TextureRegion[2];
+        index = 0;
+        for(int j = 0; j < 2; j++){
+            animationFrames[index++] = tempFrames[0][j];
+        }
+        playerIdleDamage = new Animation<>(1f/8f,animationFrames);
+
         /**Slime**/
         ///Move
         tempFrames = TextureRegion.split(new Texture("Animations/slime-Sheet.png"),32,25);
@@ -85,6 +105,16 @@ public class GameAnimations {
         animationFrames[0] = tempFrames[2][4];
 
         slimeMorido=new Animation<>(1f/8f,animationFrames);
+
+        ///Daño
+        slimeMorido=new Animation<>(1f/8f,animationFrames);
+        tempFrames = TextureRegion.split(new Texture("Animations/slime-Sheet-damage.png"),32,25);
+        animationFrames = new TextureRegion[8];
+        index = 0;
+        for(int j = 0; j < 8; j++){
+            animationFrames[index++] = tempFrames[0][j];
+        }
+        slimeDamaged = new Animation<>(1f/8f,animationFrames);
 
         /**Zombie**/
         tempFrames = TextureRegion.split(new Texture("Animations/Zombie.png"),32,32);
@@ -118,6 +148,16 @@ public class GameAnimations {
         animationFrames[0] = tempFrames[5][7];
 
         zombieMorido=new Animation<>(1f/8f,animationFrames);
+
+        ///Daño
+        zombieMorido=new Animation<>(1f/8f,animationFrames);
+        tempFrames = TextureRegion.split(new Texture("Animations/Zombie-damage.png"),32,25);
+        animationFrames = new TextureRegion[8];
+        index = 0;
+        for(int j = 0; j < 8; j++){
+            animationFrames[index++] = tempFrames[0][j];
+        }
+        zombieDamaged = new Animation<>(1f/8f,animationFrames);
 
         /**Bat**/
         animationFrames=new TextureRegion[2];
