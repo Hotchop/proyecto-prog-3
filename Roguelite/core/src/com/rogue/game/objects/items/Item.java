@@ -55,7 +55,6 @@ public class Item implements ItemLogic {
         this.itemHitbox = itemHitbox;
     }
 
-
     @Override
     public void pickUp(Player player) {
 

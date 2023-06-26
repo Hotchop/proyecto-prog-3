@@ -22,25 +22,12 @@ import com.rogue.game.objects.mapstuff.Objecto;
 import com.rogue.game.objects.mapstuff.Objetos;
 import com.rogue.game.objects.mapstuff.traps.Trampas;
 import com.rogue.game.objects.mapstuff.traps.Trap;
-
-
-
 import java.text.DecimalFormat;
 import java.util.Random;
-
 import static com.badlogic.gdx.math.MathUtils.random;
-
-
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-
-
-import java.text.DecimalFormat;
-import java.util.Random;
-
-import static com.badlogic.gdx.math.MathUtils.random;
 
 public class GameScreen implements Screen {
     private final RogueliteGame game;
@@ -68,7 +55,6 @@ public class GameScreen implements Screen {
     boolean levelComplete;
     private Texture proyectilTexture;
     private List<Proyectil> proyectiles;
-    private float attackSpeed = 0.5f;
     private float lastShotTime = 0.0f;
     private  float lastAttackTime=0.0f;
     private Sound soundProyectil;
@@ -341,12 +327,17 @@ public class GameScreen implements Screen {
         playerPosition();
 
         //Exit Level
-        if(player.getHitBox().overlaps(exit) && Gdx.input.isKeyJustPressed(Input.Keys.E) && levelComplete){
-            battleOST.stop();
-            player.getHitBox().x = 384;
-            player.getHitBox().y = 250;
-            game.setScreen(new LoadingScreen(game,player));
-            dispose();
+        if(player.getHitBox().overlaps(exit) && levelComplete){
+            game.batch.begin();
+            game.font.draw(game.batch,"[E]",400-16,620,32,Align.center,false);
+            game.batch.end();
+            if(Gdx.input.isKeyJustPressed(Input.Keys.E) ){
+                battleOST.stop();
+                player.getHitBox().x = 384;
+                player.getHitBox().y = 250;
+                game.setScreen(new LoadingScreen(game,player));
+                dispose();
+            }
         }
 
         //Muerte del Jugador
@@ -356,6 +347,25 @@ public class GameScreen implements Screen {
             player.getHitBox().y = 250;
             game.setScreen(new EndScreen(game,player));
         }
+    }
+    @Override
+    public void resize(int width, int height) {
+
+    }
+
+    @Override
+    public void pause() {
+
+    }
+
+    @Override
+    public void resume() {
+
+    }
+
+    @Override
+    public void hide() {
+
     }
 
     public void playerPosition(){
@@ -440,7 +450,6 @@ public class GameScreen implements Screen {
             }
         }
     }
-
     private void trapsState() {
         for(Trap t: hitboxes2) {
             if(noEnemies()){
@@ -457,7 +466,7 @@ public class GameScreen implements Screen {
                     t.setAtacando(false);
                 }
                 if (t.isAtacando()) {
-                        t.getBala().getHitbox().x += 90 * Gdx.graphics.getDeltaTime() * (t.direccion());
+                    t.getBala().getHitbox().x += 90 * Gdx.graphics.getDeltaTime() * (t.direccion());
                 }
             }else{
                 t.getBala().reinit(t.getBala().getHitbox().y);
@@ -465,26 +474,6 @@ public class GameScreen implements Screen {
         }
 
     }
-    @Override
-    public void resize(int width, int height) {
-
-    }
-
-    @Override
-    public void pause() {
-
-    }
-
-    @Override
-    public void resume() {
-
-    }
-
-    @Override
-    public void hide() {
-
-    }
-
     public void spawnItems() throws InstantiationException, IllegalAccessException {
         Random random = new Random();   //Spawnea 3 copias de items random y los posiciona en el mapa
         Item orginal1 = game.itemArrayList.get(random(0,game.itemArrayList.size()-1));
@@ -533,15 +522,15 @@ public class GameScreen implements Screen {
         game.font.draw(game.batch,""+player.getScore(),680,617,32,Align.left,false);
 
         //Damage
-        game.batch.draw(new Texture("ItemIcons/damage_Icon.png"),150,118);
-        game.font.draw(game.batch,"Damage",150,108,32,Align.center,false);
-        game.font.draw(game.batch,""+(int)player.getWeapon().getDamage(),150,88,32,Align.center,false);
+        game.batch.draw(new Texture("ItemIcons/damage_Icon.png"),128,118);
+        game.font.draw(game.batch,"Damage",128,108,32,Align.center,false);
+        game.font.draw(game.batch,""+(int)player.getWeapon().getDamage(),128,88,32,Align.center,false);
 
         //CritChance
-        game.batch.draw(new Texture("ItemIcons/critChance_Icon.png"),230,118);
-        game.font.draw(game.batch,"Crit.Chance",230,108,32,Align.center,false);
-        game.font.draw(game.batch,""+decimalFormat.format(player.getWeapon().getCritChance()*100)+"%",230,88,32,Align.center,false);
-        if(!CritChanceItem.isSpawneable()) game.font.draw(game.batch,"MAX",230,68,32,Align.center,false);
+        game.batch.draw(new Texture("ItemIcons/critChance_Icon.png"),215,118);
+        game.font.draw(game.batch,"Crit.Chance",215,108,32,Align.center,false);
+        game.font.draw(game.batch,""+decimalFormat.format(player.getWeapon().getCritChance()*100)+"%",215,88,32,Align.center,false);
+        if(!CritChanceItem.isSpawneable()) game.font.draw(game.batch,"MAX",215,68,32,Align.center,false);
 
         //CritDamage
         game.batch.draw(new Texture("ItemIcons/critDamage_Icon.png"),320,118);
@@ -550,28 +539,28 @@ public class GameScreen implements Screen {
         if(!CritDamageItem.isSpawneable()) game.font.draw(game.batch,"MAX",320,68,32,Align.center,false);
 
         //Projectile Speed
-        game.batch.draw(new Texture("ItemIcons/pSpeed_Icon.png"),415,118);
-        game.font.draw(game.batch,"Attack Speed",415,108,32,Align.center,false);
-        game.font.draw(game.batch,""+(int)player.getWeapon().getpSpeed(),415,88,32,Align.center,false);
-        if(!PSpeedItem.isSpawneable()) game.font.draw(game.batch,"MAX",415,68,32,Align.center,false);
+        game.batch.draw(new Texture("ItemIcons/pSpeed_Icon.png"),433,118);
+        game.font.draw(game.batch,"Attack Speed",433,108,32,Align.center,false);
+        game.font.draw(game.batch,""+decimalFormat.format(player.getWeapon().getpSpeed()*100),433,88,32,Align.center,false);
+        if(!PSpeedItem.isSpawneable()) game.font.draw(game.batch,"MAX",433,68,32,Align.center,false);
 
         //Armor
-        game.batch.draw(new Texture("ItemIcons/armor_Icon.png"),490,118);
-        game.font.draw(game.batch,"Armor",490,108,32,Align.center,false);
-        game.font.draw(game.batch,""+decimalFormat.format(player.getArmor()*100)+"%",490,88,32,Align.center,false);
-        if(!ArmorItem.isSpawneable()) game.font.draw(game.batch,"MAX",490,68,32,Align.center,false);
+        game.batch.draw(new Texture("ItemIcons/armor_Icon.png"),520,118);
+        game.font.draw(game.batch,"Armor",520,108,32,Align.center,false);
+        game.font.draw(game.batch,""+decimalFormat.format(player.getArmor()*100)+"%",520,88,32,Align.center,false);
+        if(!ArmorItem.isSpawneable()) game.font.draw(game.batch,"MAX",520,68,32,Align.center,false);
 
         //Dodge
-        game.batch.draw(new Texture("ItemIcons/dodge_Icon.png"),550,118);
-        game.font.draw(game.batch,"Dodge",550,108,32,Align.center,false);
-        game.font.draw(game.batch,""+decimalFormat.format(player.getDodgeChance()*100)+"%",550,88,32,Align.center,false);
-        if(!DodgeItem.isSpawneable()) game.font.draw(game.batch,"MAX",550,68,32,Align.center,false);
+        game.batch.draw(new Texture("ItemIcons/dodge_Icon.png"),580,118);
+        game.font.draw(game.batch,"Dodge",580,108,32,Align.center,false);
+        game.font.draw(game.batch,""+decimalFormat.format(player.getDodgeChance()*100)+"%",580,88,32,Align.center,false);
+        if(!DodgeItem.isSpawneable()) game.font.draw(game.batch,"MAX",580,68,32,Align.center,false);
 
         //Speed
-        game.batch.draw(new Texture("ItemIcons/speed_Icon.png"),610,118);
-        game.font.draw(game.batch,"Speed",610,108,32,Align.center,false);
-        game.font.draw(game.batch,""+(int)player.getSpeed(),610,88,32,Align.center,false);
-        if(!SpeedItem.isSpawneable()) game.font.draw(game.batch,"MAX",610,68,32,Align.center,false);
+        game.batch.draw(new Texture("ItemIcons/speed_Icon.png"),640,118);
+        game.font.draw(game.batch,"Speed",640,108,32,Align.center,false);
+        game.font.draw(game.batch,""+(int)player.getSpeed(),640,88,32,Align.center,false);
+        if(!SpeedItem.isSpawneable()) game.font.draw(game.batch,"MAX",640,68,32,Align.center,false);
 
         game.batch.end();
     }
@@ -580,6 +569,8 @@ public class GameScreen implements Screen {
         if(player.getHitBox().overlaps(item.getItemHitbox())){
             displayDescription(item);
             if(Gdx.input.isKeyJustPressed(Input.Keys.E)){
+                Sound pickUp = Gdx.audio.newSound(Gdx.files.internal("Sounds/item_pickUp.mp3"));
+                pickUp.play();
                 item.pickUp(player);
                 clearItems();
             }
@@ -590,6 +581,7 @@ public class GameScreen implements Screen {
         game.batch.begin();
         game.font.draw(game.batch,item.getName(),item.getItemHitbox().x-135,item.getItemHitbox().y-20,300f, Align.center,false);
         game.font.draw(game.batch,item.getDecription(),item.getItemHitbox().x-135,item.getItemHitbox().y-40,300f,Align.center,false);
+        game.font.draw(game.batch,"[E]",item.getItemHitbox().x-135,item.getItemHitbox().y-60,300f,Align.center,false);
         game.batch.end();
     }
 
@@ -601,12 +593,11 @@ public class GameScreen implements Screen {
         levelComplete = true;
     }
 
-
 	private void dispararProyectil(int direccionX, int direccionY) {
         if (direccionX != 0 || direccionY != 0) {
             float currentTime = TimeUtils.nanoTime() / 1000000000.0f; // Obtiene el tiempo actual en segundos
             float elapsedTime = currentTime - lastShotTime; // Calcula el tiempo transcurrido desde el último disparo
-            if (elapsedTime >= attackSpeed) {
+            if (elapsedTime >= player.getWeapon().getpSpeed()) {
                 lastShotTime = currentTime; // Actualiza el momento del último disparo
 
                 float posX = player.getHitBox().x;
@@ -618,6 +609,7 @@ public class GameScreen implements Screen {
             }
         }
     }
+
     private void recorridoProyectil(float deltaTime) {
         for (int i = proyectiles.size() - 1; i >= 0; i--) {
             Proyectil proyectil = proyectiles.get(i);
@@ -633,6 +625,7 @@ public class GameScreen implements Screen {
         hitboxes=new ArrayList<>();
         for(int i=0;i<floorNumber+1;i++) hitboxes.add(objetos.randomObj());
     }
+
     public void spawnTraps() {
         traps = new Trampas();
         hitboxes2 = new ArrayList<>();
@@ -644,8 +637,6 @@ public class GameScreen implements Screen {
                 for (int i = 0; i < 8; i++) hitboxes2.add(traps.randomTrp());
             }
     }
-
-
 
     public ArrayList generadorEnemigos (){
         ArrayList l=new ArrayList<>();
@@ -661,7 +652,7 @@ public class GameScreen implements Screen {
         float currentTime = TimeUtils.nanoTime() / 1000000000.0f; // Obtiene el tiempo actual en segundos
         float elapsedTime = currentTime - lastAttackTime; // Calcula el tiempo transcurrido desde el último disparo
         if (player.getHealth()>0 && e.getHealth()>0) {
-            if (e.getHitBox().overlaps(player.getHitBox()) && elapsedTime>=attackSpeed) {
+            if (e.getHitBox().overlaps(player.getHitBox()) && elapsedTime>=player.getWeapon().getpSpeed()) {
                 player.setHealth((player.getHealth() - e.getDamage()));
                 lastAttackTime=currentTime;
             }
@@ -701,7 +692,7 @@ public class GameScreen implements Screen {
     }
     private void recibirProyectil (Enemy e,Proyectil p){
         if (e.getHitBox().overlaps(p.getHitBox())) {
-            e.setHealth(e.getHealth() - player.getWeapon().getDamage());
+            e.setHealth(e.getHealth() - player.getWeapon().attack());
             if(e.getHealth()<=0) e.setStatus(false);
         }
         ///Puntaje enemigos
@@ -717,6 +708,7 @@ public class GameScreen implements Screen {
         if (player.getXp()>=100){
             player.setXp(player.getXp()-100);
             player.setLevel(player.getLevel()+1);
+            Enemy.difficulty += 0.2;
         }
     }
     private boolean noEnemies(){

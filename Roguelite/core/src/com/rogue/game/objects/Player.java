@@ -3,6 +3,8 @@ package com.rogue.game.objects;
 import com.badlogic.gdx.math.Rectangle;
 import com.rogue.game.enums.PlayerAnimationStatus;
 
+import java.util.Random;
+
 public class Player {
     private String name;
     private float health;
@@ -166,6 +168,16 @@ public class Player {
 
     public int getLEVEL_XP() {
         return LEVEL_XP;
+    }
+
+    public float attacked(float damage){
+        Random random = new Random();
+        float chance = random.nextFloat(0f,1f);
+        if(getDodgeChance() > 0f && chance <= getDodgeChance()){
+            return 0f;
+        }else{
+            return damage * (1f - getArmor());
+        }
     }
 
     public Rectangle isOverlaping(Rectangle r){

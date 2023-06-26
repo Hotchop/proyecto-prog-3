@@ -1,5 +1,7 @@
 package com.rogue.game.objects;
 
+import java.util.Random;
+
 public class Weapon {
     private float damage;
     private float critChance;
@@ -7,13 +9,13 @@ public class Weapon {
     private float pSpeed;
     private final float MAX_CRITCHANCE = 0.5f;
     private final float MAX_CRITDAMAGE = 3f;
-    private final float MAX_PSPEED = 500f;
+    private final float MAX_PSPEED = 2f;
 
     public Weapon() {
-        this.damage = 50;
-        this.critChance = 0;
-        this.critDamage = 1;
-        this.pSpeed = 200;
+        this.damage = 50f;
+        this.critChance = 0.05f;
+        this.critDamage = 1.1f;
+        this.pSpeed = 0.5f;
     }
 
     public float getDamage() {
@@ -58,5 +60,15 @@ public class Weapon {
 
     public float getMAX_PSPEED() {
         return MAX_PSPEED;
+    }
+
+    public float attack(){
+        Random random = new Random();
+        float chance = random.nextFloat(0f,1f);
+        if(chance > 0f && chance <= getCritChance()){
+            return damage * critDamage;
+        }else{
+            return damage;
+        }
     }
 }

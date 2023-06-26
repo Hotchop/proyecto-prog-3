@@ -23,7 +23,7 @@ public class HealthItem extends Item{
     @Override
     public void pickUp(Player player) {
         if (player.getHealth() < player.getMaxHealth()) {
-            player.setHealth(player.getHealth() + 10f);
+            player.setHealth(player.getHealth() + (player.getMaxHealth() * 0.25f));
         }
         if(player.getHealth() == player.getMaxHealth()){
             HealthItem.spawneable = false;

@@ -5,12 +5,11 @@ import com.rogue.game.interfaces.IRandomXY;
 
 public class Zombie extends Enemy implements IRandomXY {
     public Zombie() {
-        this.health = 100;
-        this.MAX_HEALTH = 100;
+        this.health = 50 * Enemy.difficulty;
         this.speed = 40;
-        this.damage = 15;
-        this.xp = 25;
-        this.score = 100;
+        this.damage = 15 * Enemy.difficulty;
+        this.xp = 5;
+        this.score = 100 * Enemy.difficulty;
         this.hitBox = new Rectangle(generacionAleatoriaX(),generacionAleatoriaY(),40,40);
         this.hitBoxAtaque=new Rectangle(hitBox.x,hitBox.y,20,20);
         this.direction =1;

@@ -23,7 +23,7 @@ public class PSpeedItem extends Item{
     @Override
     public void pickUp(Player player) {
         if (player.getWeapon().getpSpeed() < player.getWeapon().getMAX_PSPEED()) {
-            player.getWeapon().setpSpeed(player.getWeapon().getpSpeed() + 5f);
+            player.getWeapon().setpSpeed(player.getWeapon().getpSpeed() + 0.1f);
         }
         if(player.getWeapon().getpSpeed() == player.getWeapon().getMAX_PSPEED()){
             PSpeedItem.spawneable = false;

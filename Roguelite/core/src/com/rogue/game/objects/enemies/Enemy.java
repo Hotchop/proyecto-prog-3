@@ -3,12 +3,11 @@ import com.badlogic.gdx.math.Rectangle;
 
 public abstract class Enemy  {
     public float health;
-    public float MAX_HEALTH;
     public float speed;
     public float damage;
     public float xp;
     public float score;
-    public static float difficulty;
+    public static float difficulty = 1;
     public Rectangle hitBox;
     public Rectangle hitBoxAtaque;
     public int direction;
@@ -28,13 +27,6 @@ public abstract class Enemy  {
         this.health = health;
     }
 
-    public float getMAX_HEALTH() {
-        return MAX_HEALTH;
-    }
-
-    public void setMAX_HEALTH(float MAX_HEALTH) {
-        this.MAX_HEALTH = MAX_HEALTH;
-    }
 
     public float getSpeed() {
         return speed;

@@ -5,12 +5,11 @@ import com.rogue.game.interfaces.IRandomXY;
 
 public class Slime extends Enemy implements IRandomXY {
     public Slime() {
-        this.health = 200;
-        this.MAX_HEALTH = 300;
+        this.health = 100 * Enemy.difficulty;
         this.speed = 30;
-        this.damage = 15;
-        this.xp = 25;
-        this.score = 100;
+        this.damage = 15 * Enemy.difficulty;
+        this.xp = 10;
+        this.score = 100 * Enemy.difficulty;
         this.hitBox = new Rectangle(generacionAleatoriaX(),generacionAleatoriaY(),40,40);
         this.hitBoxAtaque=new Rectangle(hitBox.x,hitBox.y,20,20);
         this.direction =1;

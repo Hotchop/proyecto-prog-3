@@ -6,12 +6,11 @@ import com.rogue.game.interfaces.IRandomXY;
 public class Bat extends Enemy implements IRandomXY {
 
     public Bat(int posx, int posy) {
-        this.health = 50;
-        this.MAX_HEALTH = 75;
+        this.health = 50 * Enemy.difficulty;
         this.speed = 80;
-        this.damage = 10;
+        this.damage = 10 * Enemy.difficulty;
         this.xp = 25;
-        this.score = 75;
+        this.score = 75 * Enemy.difficulty;
         this.hitBox = new Rectangle(generacionAleatoriaX(),generacionAleatoriaY(),40,40);
         this.hitBoxAtaque=new Rectangle(hitBox.x,hitBox.y,20,20);
         this.direction =1;

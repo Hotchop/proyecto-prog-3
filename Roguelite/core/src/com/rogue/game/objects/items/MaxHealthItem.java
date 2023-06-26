@@ -14,7 +14,7 @@ public class MaxHealthItem extends Item{
 
     @Override
     public void pickUp(Player player) {
-        player.setMaxHealth(player.getMaxHealth() + 10);
-        player.setHealth(player.getHealth() + 10);
+        player.setMaxHealth(player.getMaxHealth() + 25);
+        player.setHealth(player.getHealth() + 25);
     }
 }
