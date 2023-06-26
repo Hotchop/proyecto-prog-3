@@ -77,6 +77,8 @@ public class GameScreen implements Screen {
     ArrayList<Rectangle>hitboxesAtaque;
     HashSet<Enemy> deadEnemies;
     boolean enemyGetsShot;
+    Item itemR;
+    boolean hpItemSpawned;
     ShapeRenderer shapeRenderer;
     public GameScreen(final RogueliteGame game, Player player){
         this.game = game;
@@ -121,7 +123,8 @@ public class GameScreen implements Screen {
         for(Enemy e: z){
             hitboxesAtaque.add(e.getHitBoxAtaque());
         }
-
+        itemR=new HealthItem("HP Orb","Restore health","ItemSprites/health.png", -100, -100);
+        hpItemSpawned=false;
 
         itemsAreSpawned = false;
         levelComplete = false;
@@ -190,37 +193,8 @@ public class GameScreen implements Screen {
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
             dispararProyectil(1, 0);
         }
-        for(Enemy e: z) {
-            shapeRenderer.setProjectionMatrix(camera.combined);
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-            shapeRenderer.setColor(Color.RED);
-            shapeRenderer.rect(e.getHitBoxAtaque().x, e.getHitBoxAtaque().y, e.getHitBoxAtaque().width, e.getHitBoxAtaque().height);
-            shapeRenderer.end();
 
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-            shapeRenderer.rect(
-                    player.getHitBox().x,
-                    player.getHitBox().y,
-                    player.getHitBox().width,
-                    player.getHitBox().height
-            );
-            shapeRenderer.end();
 
-            shapeRenderer.setProjectionMatrix(camera.combined);
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-            shapeRenderer.setColor(Color.GREEN);
-            shapeRenderer.rect(e.getHitBox().x, e.getHitBox().y, e.getHitBox().width, e.getHitBox().height);
-            shapeRenderer.end();
-
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-            shapeRenderer.rect(
-                    player.getHitBox().x,
-                    player.getHitBox().y,
-                    player.getHitBox().width,
-                    player.getHitBox().height
-            );
-            shapeRenderer.end();
-        }
         //Logica trampas
             checkBulletsCollisions();
             trapsState();
@@ -238,6 +212,7 @@ public class GameScreen implements Screen {
             itemInteraction(item3);
         }
 
+        if(hpItemSpawned) itemInteractionR(itemR);
         //Logica de enemigos
 
         for (int i=0;i<z.size();i++) {
@@ -256,6 +231,7 @@ public class GameScreen implements Screen {
             if (z.get(i).getClass()==Zombie.class)animacionZombie((Zombie) z.get(i),player);
             else if (z.get(i).getClass()== Slime.class)animacionSlime((Slime) z.get(i),player);
             game.batch.end();
+
             ///Persecucion
             checkEnemiesCollisions();
             if (!z.get(i).getHitBoxAtaque().overlaps(player.getHitBox()) && z.get(i).getHealth() > 0) {
@@ -333,8 +309,10 @@ public class GameScreen implements Screen {
                     }
                 }
             }
+
         }
 
+        ///Spawn items random
 
 
         if(!noEnemies()) {
@@ -356,7 +334,12 @@ public class GameScreen implements Screen {
 
             }
         }
-
+        //Spawn hp item
+        if(hpItemSpawned){
+            game.batch.begin();
+            game.batch.draw(itemR.getSprite(),itemR.getItemHitbox().x,itemR.getItemHitbox().y);
+            game.batch.end();
+        }
         //Animacion del personaje
         game.batch.begin();
         if(player.getAnimationStatus() == PlayerAnimationStatus.IDLE){
@@ -386,7 +369,6 @@ public class GameScreen implements Screen {
         //Logica de movimento del Personaje y sus colisiones
         checkPlayerCollisions();
         playerPosition();
-
         //Exit Level
         if(player.getHitBox().overlaps(exit) && levelComplete){
             game.batch.begin();
@@ -609,7 +591,7 @@ public class GameScreen implements Screen {
         //Projectile Speed
         game.batch.draw(new Texture("ItemIcons/pSpeed_Icon.png"),433,118);
         game.font.draw(game.batch,"Attack Speed",433,108,32,Align.center,false);
-        game.font.draw(game.batch,""+decimalFormat.format(player.getWeapon().getpSpeed()*100),433,88,32,Align.center,false);
+        game.font.draw(game.batch,""+decimalFormat.format(100f-(player.getWeapon().getpSpeed()*100)),433,88,32,Align.center,false);
         if(!PSpeedItem.isSpawneable()) game.font.draw(game.batch,"MAX",433,68,32,Align.center,false);
 
         //Armor
@@ -644,6 +626,18 @@ public class GameScreen implements Screen {
             }
         }
     }
+    public void itemInteractionR(Item item){
+        if(player.getHitBox().overlaps(item.getItemHitbox())){
+            displayDescription(item);
+            if(Gdx.input.isKeyJustPressed(Input.Keys.E)){
+                Sound pickUp = Gdx.audio.newSound(Gdx.files.internal("Sounds/item_pickUp.mp3"));
+                pickUp.play();
+                item.pickUp(player);
+                clearHPItem();
+                hpItemSpawned=false;
+            }
+        }
+    }
 
     public void displayDescription(Item item){
         game.batch.begin();
@@ -659,6 +653,9 @@ public class GameScreen implements Screen {
         item3.getItemHitbox().y = -100;
 
         levelComplete = true;
+    }
+    public void clearHPItem(){
+        itemR.getItemHitbox().y=-100;
     }
 
 	private void dispararProyectil(int direccionX, int direccionY) {
@@ -708,7 +705,7 @@ public class GameScreen implements Screen {
     public ArrayList generadorEnemigos (){
         ArrayList l=new ArrayList<>();
         Random r=new Random();
-        for (int i=0;i<floorNumber;i++){
+        for (int i=0;i<player.getLevel();i++){
             l.add(new Zombie());
             l.add(new Slime());
         }
@@ -720,7 +717,7 @@ public class GameScreen implements Screen {
         float elapsedTime = currentTime - lastAttackTime; // Calcula el tiempo transcurrido desde el último disparo
         if (player.getHealth()>0 && e.getHealth()>0) {
             if (e.getHitBoxAtaque().overlaps(player.getHitBox()) && elapsedTime>=attackSpeed) {
-                player.setHealth((player.getHealth() - e.getDamage()));
+                player.setHealth((player.getHealth() - player.attacked(e.getDamage())));
                 playerGetsDamage=true;
                 lastAttackTime=currentTime;
             }
@@ -771,13 +768,16 @@ public class GameScreen implements Screen {
     private void recibirProyectil (Enemy e,Proyectil p){
         if (e.getHitBox().overlaps(p.getHitBox())) {
             e.setHealth(e.getHealth() - player.getWeapon().attack());
-            if(e.getHealth()<=0) e.setStatus(false);
+            if(e.getHealth()<=0){
+                e.setStatus(false);
+                chanceHPItemSpawn(e);
+            }
             enemyGetsShot=true;
         }else{
             enemyGetsShot=false;
         }
         ///Puntaje enemigos
-        if(e.getHealth()<0){
+        if(e.getHealth()<=0){
             player.setScore((int) (player.getScore()+e.getScore()));
             e.setScore(0);
             player.setXp((int) (player.getXp()+e.getXp()));
@@ -785,11 +785,19 @@ public class GameScreen implements Screen {
             subirLvl();
         }
     }
+    public void chanceHPItemSpawn(Enemy e){
+        Random random=new Random();
+        if(random.nextDouble(0d,1d)<0.1d && !hpItemSpawned){
+            hpItemSpawned=true;
+            itemR.getItemHitbox().x=e.getHitBox().x-1000;
+            itemR.getItemHitbox().y=e.getHitBox().y;
+        }
+    }
     public void subirLvl (){
         if (player.getXp()>=100){
             player.setXp(player.getXp()-100);
             player.setLevel(player.getLevel()+1);
-            Enemy.difficulty += 0.2;
+            Enemy.difficulty += 0.75;
         }
     }
     private boolean noEnemies(){

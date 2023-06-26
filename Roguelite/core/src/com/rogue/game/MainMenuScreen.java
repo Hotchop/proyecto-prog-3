@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.rogue.game.objects.Player;
 import com.rogue.game.objects.Weapon;
+import com.rogue.game.objects.enemies.Enemy;
 
 import javax.swing.*;
 
@@ -86,7 +87,11 @@ public class MainMenuScreen implements Screen {
                     menuOst.stop();
                     playerWeapon = new Weapon();
                     String name = JOptionPane.showInputDialog("Nombre de jugador");
+                    if(name==null||name.equals("")){
+                        name="Player";
+                    }
                     player = new Player(name, playerWeapon);
+                    Enemy.difficulty=1;
                     game.setScreen(new GameScreen(game, player));
                     dispose();
                     break;

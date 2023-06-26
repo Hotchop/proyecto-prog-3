@@ -9,7 +9,7 @@ public class Weapon {
     private float pSpeed;
     private final float MAX_CRITCHANCE = 0.5f;
     private final float MAX_CRITDAMAGE = 3f;
-    private final float MAX_PSPEED = 2f;
+    private final float MAX_PSPEED = 0.2f;
 
     public Weapon() {
         this.damage = 50f;
