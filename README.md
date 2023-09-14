@@ -3,7 +3,7 @@ En el presente trabajo el grupo diseñó y desarrolló un juego de estilo Roguel
 <br />
 <br />
 Como Iniciar: <br />
-Al abrir el proyecto en Intellij, ir al panel de Gradle de la derecha. Entre las opciones, seleccionar Tasks > Other > Run. Una vez ejecutado, se puede usar el Run normalmente.
+Utilizar el ejecutable UTN Roguelite que se encuentre en la carpeta Roguelite.
 <br />
 <br />
 Como Jugar: <br />
